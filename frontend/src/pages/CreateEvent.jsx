@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createEvent } from '../services/api';
 import LocationPicker from '../components/LocationPicker';
+import CustomSelect from '../components/CustomSelect';
 import { useAuth } from '../context/AuthContext';
 import { Image as ImageIcon, MapPin, Globe, GraduationCap, PartyPopper } from 'lucide-react';
 
@@ -84,18 +85,13 @@ const CreateEvent = () => {
 
                 <div>
                   <label className="block text-sm font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wide">Category</label>
-                  <select name="category" value={form.category} onChange={handleChange} className="input-field cursor-pointer">
-                    <option value="Technology">Technology</option>
-                    <option value="Music">Music</option>
-                    <option value="Sports">Sports</option>
-                    <option value="Art">Art</option>
-                    <option value="Education">Education</option>
-                    <option value="Business">Business</option>
-                    <option value="Health">Health</option>
-                    <option value="Food">Food</option>
-                    <option value="Gaming">Gaming</option>
-                    <option value="Social">Social</option>
-                  </select>
+                  
+                  <CustomSelect
+                    name="category"
+                    value={form.category}
+                    onChange={handleChange}
+                    options={["Technology","Music","Sports","Art","Education","Business","Health","Food","Gaming","Social"].map(cat => ({ value: cat, label: cat }))}
+                  />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -211,10 +207,16 @@ const CreateEvent = () => {
                <label className="block text-sm font-bold text-[var(--text-secondary)] mb-4 uppercase tracking-wide">Event Accessibility</label>
               
               <div className="space-y-4">
-                <select name="eventType" value={form.eventType} onChange={handleChange} className="input-field cursor-pointer bg-white">
-                  <option value="openEvent">Open Event — Anyone can join</option>
-                  <option value="collegeOnlyEvent">College Only — Restricted to your college</option>
-                </select>
+                
+                <CustomSelect
+                  name="eventType"
+                  value={form.eventType}
+                  onChange={handleChange}
+                  options={[
+                    { value: 'openEvent', label: 'Open Event — Anyone can join' },
+                    { value: 'collegeOnlyEvent', label: 'College Only — Restricted to your college' }
+                  ]}
+                />
 
                 {form.eventType === 'collegeOnlyEvent' && (
                   <div className="p-4 rounded-xl bg-blue-50 text-[var(--primary-dark)] text-sm font-medium border border-blue-100 flex items-start gap-3">

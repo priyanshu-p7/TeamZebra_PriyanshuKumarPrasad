@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getEvents } from '../services/api';
 import EventCard from '../components/EventCard';
+import CustomSelect from '../components/CustomSelect';
 import { Search, MapPin, Globe, GraduationCap, PartyPopper } from 'lucide-react';
 
 const ExploreEvents = () => {
@@ -83,25 +84,29 @@ const ExploreEvents = () => {
                 className="input-field !pl-10"
               />
             </div>
-            <select
+            
+            <CustomSelect
+              name="category"
+              placeholder="All Categories"
               value={filters.category}
               onChange={(e) => setFilters({ ...filters, category: e.target.value })}
-              className="input-field cursor-pointer bg-white text-[var(--text-primary)]"
-            >
-              <option value="" className="bg-white text-[var(--text-primary)] font-medium">All Categories</option>
-              {categories.map((cat) => (
-                <option key={cat} value={cat} className="bg-white text-[var(--text-primary)] font-medium">{cat}</option>
-              ))}
-            </select>
-            <select
+              options={[
+                { value: '', label: 'All Categories' },
+                ...categories.map(cat => ({ value: cat, label: cat }))
+              ]}
+            />
+            
+            <CustomSelect
+              name="eventType"
+              placeholder="All Types"
               value={filters.eventType}
               onChange={(e) => setFilters({ ...filters, eventType: e.target.value })}
-              className="input-field cursor-pointer bg-white text-[var(--text-primary)]"
-            >
-              <option value="" className="bg-white text-[var(--text-primary)] font-medium">All Types</option>
-              <option value="openEvent" className="bg-white text-[var(--text-primary)] font-medium">Open Events</option>
-              <option value="collegeOnlyEvent" className="bg-white text-[var(--text-primary)] font-medium">College Only</option>
-            </select>
+              options={[
+                { value: '', label: 'All Types' },
+                { value: 'openEvent', label: 'Open Events' },
+                { value: 'collegeOnlyEvent', label: 'College Only' }
+              ]}
+            />
             <input
               type="date"
               value={filters.date}

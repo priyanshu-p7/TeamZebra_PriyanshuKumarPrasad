@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Rocket, Mic } from 'lucide-react';
 import PasswordInput from '../components/PasswordInput';
+import CustomSelect from '../components/CustomSelect';
 
 const Register = () => {
   const { register } = useAuth();
@@ -120,15 +121,15 @@ const Register = () => {
 
             <div>
               <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5">I am a</label>
-              <select
+              <CustomSelect
                 name="role"
                 value={form.role}
                 onChange={handleChange}
-                className="input-field cursor-pointer"
-              >
-                <option value="attendee">Attendee — I want to discover & book events</option>
-                <option value="organizer">Organizer — I want to create & manage events</option>
-              </select>
+                options={[
+                  { value: 'attendee', label: 'Attendee — I want to discover & book events' },
+                  { value: 'organizer', label: 'Organizer — I want to create & manage events' },
+                ]}
+              />
             </div>
 
             {/* Organizer-specific fields */}
@@ -142,15 +143,15 @@ const Register = () => {
 
                   <div>
                     <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5">I organize events as</label>
-                    <select
+                    <CustomSelect
                       name="organizerType"
                       value={form.organizerType}
                       onChange={handleChange}
-                      className="input-field cursor-pointer"
-                    >
-                      <option value="independent">Independent — I organize events on my own</option>
-                      <option value="organization">Organization — I represent a club, company, or group</option>
-                    </select>
+                      options={[
+                        { value: 'independent', label: 'Independent — I organize events on my own' },
+                        { value: 'organization', label: 'Organization — I represent a club, company, or group' },
+                      ]}
+                    />
                   </div>
 
                   {form.organizerType === 'organization' && (
