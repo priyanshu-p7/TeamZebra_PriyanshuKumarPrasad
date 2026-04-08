@@ -146,6 +146,13 @@ const OrganizerDashboard = () => {
                       >
                         <Pencil size={18} />
                       </Link>
+                      <Link
+                        to={`/analytics/${event._id}`}
+                        className="w-10 h-10 rounded-full bg-white shadow-lg flex items-center justify-center text-indigo-600 hover:bg-indigo-50 transition-colors"
+                        title="View Attendees"
+                      >
+                        <Users size={18} />
+                      </Link>
                       <button
                         onClick={(e) => {
                           e.preventDefault();

@@ -1,3 +1,7 @@
+/* ── Google Fonts ── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700;800&display=swap');
+
 @import "tailwindcss";
 @config "../tailwind.config.js";
 
@@ -194,21 +198,54 @@
     box-shadow: 0 0 0 6px rgba(0, 82, 204, 0.1);
   }
 
-  /* -- Card Styles -- */
+  /* ── Card Styles ── */
   .card {
     background: var(--bg-card);
     border: 1px solid rgba(226, 232, 240, 0.8);
-    border-radius: 20px;
+    border-radius: 24px; /* More rounded premium feel */
     overflow: hidden;
-    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
-    position: relative;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 10px 30px rgba(148, 163, 184, 0.05); /* very soft shadow */
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 48px rgba(148, 163, 184, 0.1); /* deeper floating effect */
   }
 
-  .card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 12px 40px rgba(15, 23, 42, 0.1);
-    border-color: rgba(0, 82, 204, 0.2);
+  /* ── Ticket Cutouts ── */
+  .festival-ticket {
+    display: flex;
+    background: #eaf0ff; /* Soft periwinkle background */
+    border-radius: 24px;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(148, 163, 184, 0.15);
+    margin-bottom: 2rem;
+  }
+
+  .ticket-divider {
+    border-left: 2px dashed rgba(160, 180, 220, 0.6);
+    position: relative;
+    min-width: 2px;
+  }
+
+  .ticket-divider::before,
+  .ticket-divider::after {
+    content: '';
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    background: var(--bg-dark); /* Match the page background color to create a transparent cut out illusion */
+    border-radius: 50%;
+    left: -17px;
+    z-index: 10;
+  }
+
+  .ticket-divider::before {
+    top: -16px;
+  }
+
+  .ticket-divider::after {
+    bottom: -16px;
   }
 
   /* -- Badge -- */

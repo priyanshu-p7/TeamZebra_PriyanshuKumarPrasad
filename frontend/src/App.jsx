@@ -13,6 +13,7 @@ import EditEvent from './pages/EditEvent';
 import OrganizerDashboard from './pages/OrganizerDashboard';
 import ScanTicket from './pages/ScanTicket';
 import ForgotPassword from './pages/ForgotPassword';
+import EventAnalytics from './pages/EventAnalytics';
 
 function App() {
   return (
@@ -60,6 +61,14 @@ function App() {
             element={
               <PrivateRoute roles={['organizer']}>
                 <EditEvent />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/analytics/:id"
+            element={
+              <PrivateRoute roles={['organizer']}>
+                <EventAnalytics />
               </PrivateRoute>
             }
           />

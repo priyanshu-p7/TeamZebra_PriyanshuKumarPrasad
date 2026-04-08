@@ -7,15 +7,17 @@ const Navbar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
     navigate('/');
     setMobileOpen(false);
+    setDropdownOpen(false);
   };
 
   return (
-    <nav className="glass sticky top-0 z-50" style={{ borderBottom: '1px solid var(--border)' }}>
+    <nav className="sticky top-0 z-50 bg-white/60 backdrop-blur-2xl border-b border-slate-200/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)]" style={{ WebkitBackdropFilter: 'blur(24px)' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
@@ -54,16 +56,38 @@ const Navbar = () => {
                     </Link>
                   </>
                 )}
-                <div className="flex items-center gap-4 ml-4 pl-6" style={{ borderLeft: '1px solid var(--border)' }}>
-                  <div className="flex items-center gap-3">
+                <div className="relative flex items-center gap-4 ml-4 pl-6" style={{ borderLeft: '1px solid var(--border)' }}>
+                  <button 
+                    onClick={() => setDropdownOpen(!dropdownOpen)} 
+                    className="flex items-center gap-3 bg-transparent border-none cursor-pointer hover:opacity-80 transition-opacity"
+                  >
                     <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold text-white shadow-sm" style={{ background: 'var(--gradient-primary)' }}>
                       {user.name?.charAt(0).toUpperCase()}
                     </div>
                     <span className="text-sm font-medium text-[var(--text-primary)]">{user.name}</span>
-                  </div>
-                  <button onClick={handleLogout} className="flex items-center justify-center p-2 rounded-full text-[var(--text-muted)] hover:text-[var(--error)] hover:bg-red-50 transition-colors cursor-pointer bg-transparent border-none">
-                    <LogOut size={18} />
                   </button>
+
+                  {/* Dropdown Menu */}
+                  {dropdownOpen && (
+                    <>
+                      {/* Invisible overlay to close dropdown when clicking outside */}
+                      <div className="fixed inset-0 z-40" onClick={() => setDropdownOpen(false)}></div>
+                      
+                      <div className="absolute right-0 top-full mt-3 w-56 bg-white rounded-2xl shadow-xl border border-[var(--border)] animate-fadeIn p-2 z-50">
+                        <div className="px-4 py-3 border-b border-[var(--border)] mb-2">
+                          <p className="text-sm font-bold text-[var(--text-primary)] truncate">{user.name}</p>
+                          <p className="text-xs text-[var(--text-muted)] truncate">{user.email}</p>
+                          <p className="text-[10px] uppercase tracking-widest font-bold text-[var(--primary)] mt-1">{user.role}</p>
+                        </div>
+                        <button 
+                          onClick={handleLogout} 
+                          className="flex items-center gap-2 w-full text-left p-3 text-sm font-semibold text-[var(--error)] hover:bg-red-50 rounded-xl transition-colors cursor-pointer border-none bg-transparent"
+                        >
+                          <LogOut size={16} /> Log Out
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
               </>
             ) : (

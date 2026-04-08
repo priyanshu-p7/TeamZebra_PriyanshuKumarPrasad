@@ -8,7 +8,8 @@ const { sendEmail, buildTicketEmail } = require('../utils/sendEmail');
 // @route   POST /api/bookings/book
 const bookTicket = async (req, res) => {
   try {
-    const { eventId, ticketCount = 1 } = req.body;
+    const { eventId } = req.body;
+    const ticketCount = 1; // Strictly enforce 1 ticket per user per event
 
     // Get event
     const event = await Event.findById(eventId);

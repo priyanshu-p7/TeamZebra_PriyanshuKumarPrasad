@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { getEventById, bookTicket } from '../services/api';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { getEventById, bookTicket, getMyBookings } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import LocationPicker from '../components/LocationPicker';
-import { Frown, PartyPopper, Clock4, GraduationCap, Globe, Calendar, Clock, MapPin, User, Ticket, AlertTriangle } from 'lucide-react';
+import { Frown, PartyPopper, Clock4, GraduationCap, Globe, Calendar, Clock, MapPin, User, Ticket, AlertTriangle, CheckCircle } from 'lucide-react';
 
 const EventDetails = () => {
   const { id } = useParams();
@@ -11,13 +11,17 @@ const EventDetails = () => {
   const navigate = useNavigate();
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [ticketCount, setTicketCount] = useState(1);
+  const [hasBooked, setHasBooked] = useState(false);
   const [booking, setBooking] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
 
   useEffect(() => {
     fetchEvent();
-  }, [id]);
+    if (user && user.role === 'attendee') {
+      checkBookingStatus();
+    }
+    // eslint-disable-next-line
+  }, [id, user]);
 
   const fetchEvent = async () => {
     try {
@@ -25,6 +29,21 @@ const EventDetails = () => {
       setEvent(data);
     } catch (error) {
       console.error('Error fetching event:', error);
+    } finally {
+      if (!user || user.role !== 'attendee') {
+        setLoading(false);
+      }
+    }
+  };
+
+  const checkBookingStatus = async () => {
+    try {
+      const { data } = await getMyBookings();
+      // Check if any of the user's bookings correspond to this event
+      const alreadyBooked = data.some(b => b.eventId?._id === id || b.eventId === id);
+      setHasBooked(alreadyBooked);
+    } catch (err) {
+      console.error('Error checking bookings:', err);
     } finally {
       setLoading(false);
     }
@@ -47,8 +66,9 @@ const EventDetails = () => {
     setBooking(true);
     setMessage({ type: '', text: '' });
     try {
-      const { data } = await bookTicket({ eventId: id, ticketCount });
+      const { data } = await bookTicket({ eventId: id, ticketCount: 1 });
       setMessage({ type: 'success', text: data.message + ' Check your email for the QR ticket.' });
+      setHasBooked(true);
       fetchEvent(); // refresh seats
     } catch (error) {
       setMessage({ type: 'error', text: error.response?.data?.message || 'Booking failed' });
@@ -181,13 +201,16 @@ const EventDetails = () => {
               {/* Map */}
               {event.latitude && event.longitude && (
                 <div className="card p-8 bg-white shadow-sm overflow-hidden">
-                  <h2 className="text-2xl font-bold mb-6 flex items-center gap-2"><MapPin size={24} className="text-[var(--primary)]"/> Event Location Map</h2>
-                  <div className="rounded-2xl overflow-hidden border border-[var(--border)] h-[350px]">
-                     <LocationPicker
-                       latitude={event.latitude}
-                       longitude={event.longitude}
-                       readOnly={true}
-                     />
+                  <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                    <MapPin size={24} className="text-[var(--primary)]" /> Event Location Map
+                  </h2>
+                  <div className="rounded-2xl w-full">
+                    <LocationPicker
+                      latitude={event.latitude}
+                      longitude={event.longitude}
+                      readOnly={true}
+                      height="300px"
+                    />
                   </div>
                 </div>
               )}
@@ -238,52 +261,48 @@ const EventDetails = () => {
                   </div>
                 )}
 
-                {/* Ticket selector */}
-                {user?.role === 'attendee' && event.availableSeats > 0 && isEligible() && !isExpired && (
-                  <div className="mb-6">
-                    <label className="block text-sm font-bold tracking-wide uppercase text-[var(--text-secondary)] mb-2">
-                      Number of tickets
-                    </label>
-                    <div className="relative">
-                       <Ticket size={18} className="absolute left-4 top-3.5 text-[var(--primary)]" />
-                       <select
-                         value={ticketCount}
-                         onChange={(e) => setTicketCount(Number(e.target.value))}
-                         className="input-field !pl-12 cursor-pointer font-bold text-lg h-14"
-                       >
-                         {Array.from({ length: Math.min(5, event.availableSeats) }, (_, i) => (
-                           <option key={i + 1} value={i + 1}>{i + 1} {i === 0 ? 'ticket' : 'tickets'}</option>
-                         ))}
-                       </select>
-                    </div>
-                  </div>
-                )}
+                {/* Ticket selector removed: Attendees can only book 1 ticket */}
 
-                <button
-                  onClick={handleBook}
-                  disabled={
-                    booking ||
-                    isExpired ||
-                    event.availableSeats <= 0 ||
-                    (user && !isEligible()) ||
-                    (user && user.role !== 'attendee')
-                  }
-                  className="btn-primary w-full flex items-center justify-center gap-2 !py-4 text-lg font-bold shadow-lg shadow-blue-500/20"
-                >
-                  {booking ? (
-                    <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin" />
-                  ) : isExpired ? (
-                    <><Clock4 size={20} /> Event Expired</>
-                  ) : event.availableSeats <= 0 ? (
-                    'Sold Out'
-                  ) : !user ? (
-                    <><User size={20} /> Login to Book</>
-                  ) : user.role !== 'attendee' ? (
-                    'Attendees Only'
-                  ) : (
-                    <><Ticket size={24} className="mr-1" /> Book Now</>
-                  )}
-                </button>
+                {hasBooked ? (
+                  <div className="space-y-4">
+                    <div className="p-4 rounded-xl flex items-center justify-center gap-2 bg-blue-50 text-blue-700 border border-blue-200">
+                      <CheckCircle size={20} />
+                      <span className="font-bold">You have booked this event</span>
+                    </div>
+                    <Link
+                      to="/my-tickets"
+                      className="btn-primary w-full flex items-center justify-center gap-2 !py-4 text-lg font-bold shadow-lg shadow-blue-500/20 no-underline"
+                    >
+                      <Ticket size={24} className="mr-1" /> View Ticket
+                    </Link>
+                  </div>
+                ) : (
+                  <button
+                    onClick={handleBook}
+                    disabled={
+                      booking ||
+                      isExpired ||
+                      event.availableSeats <= 0 ||
+                      (user && !isEligible()) ||
+                      (user && user.role !== 'attendee')
+                    }
+                    className="btn-primary w-full flex items-center justify-center gap-2 !py-4 text-lg font-bold shadow-lg shadow-blue-500/20"
+                  >
+                    {booking ? (
+                      <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin" />
+                    ) : isExpired ? (
+                      <><Clock4 size={20} /> Event Expired</>
+                    ) : event.availableSeats <= 0 ? (
+                      'Sold Out'
+                    ) : !user ? (
+                      <><User size={20} /> Login to Book</>
+                    ) : user.role !== 'attendee' ? (
+                      'Attendees Only'
+                    ) : (
+                      <><Ticket size={24} className="mr-1" /> Book Now</>
+                    )}
+                  </button>
+                )}
               </div>
             </div>
           </div>

@@ -86,21 +86,21 @@ const ExploreEvents = () => {
             <select
               value={filters.category}
               onChange={(e) => setFilters({ ...filters, category: e.target.value })}
-              className="input-field cursor-pointer"
+              className="input-field cursor-pointer bg-white text-[var(--text-primary)]"
             >
-              <option value="">All Categories</option>
+              <option value="" className="bg-white text-[var(--text-primary)] font-medium">All Categories</option>
               {categories.map((cat) => (
-                <option key={cat} value={cat}>{cat}</option>
+                <option key={cat} value={cat} className="bg-white text-[var(--text-primary)] font-medium">{cat}</option>
               ))}
             </select>
             <select
               value={filters.eventType}
               onChange={(e) => setFilters({ ...filters, eventType: e.target.value })}
-              className="input-field cursor-pointer"
+              className="input-field cursor-pointer bg-white text-[var(--text-primary)]"
             >
-              <option value="">All Types</option>
-              <option value="openEvent">Open Events</option>
-              <option value="collegeOnlyEvent">College Only</option>
+              <option value="" className="bg-white text-[var(--text-primary)] font-medium">All Types</option>
+              <option value="openEvent" className="bg-white text-[var(--text-primary)] font-medium">Open Events</option>
+              <option value="collegeOnlyEvent" className="bg-white text-[var(--text-primary)] font-medium">College Only</option>
             </select>
             <input
               type="date"

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { MapPin, Navigation } from 'lucide-react';
 
 // Fix default marker icon issue with webpack/vite
 delete L.Icon.Default.prototype._getIconUrl;
@@ -28,11 +29,11 @@ const RecenterMap = ({ lat, lng }) => {
     if (lat && lng) {
       map.setView([lat, lng], map.getZoom());
     }
-  }, [lat, lng]);
+  }, [lat, lng, map]);
   return null;
 };
 
-const LocationPicker = ({ latitude, longitude, onLocationSelect, readOnly = false }) => {
+const LocationPicker = ({ latitude, longitude, onLocationSelect, readOnly = false, height }) => {
   const [position, setPosition] = useState(
     latitude && longitude ? [latitude, longitude] : null
   );
@@ -79,8 +80,11 @@ const LocationPicker = ({ latitude, longitude, onLocationSelect, readOnly = fals
   };
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="relative rounded-xl overflow-hidden" style={{ height: readOnly ? '200px' : '300px', border: '1px solid var(--border)' }}>
+    <div className="flex flex-col gap-4 w-full h-full">
+      <div 
+        className="relative rounded-2xl overflow-hidden shadow-sm w-full" 
+        style={{ height: height || (readOnly ? '250px' : '350px'), border: '1px solid var(--border)' }}
+      >
         <MapContainer
           center={center}
           zoom={zoom}
@@ -103,22 +107,22 @@ const LocationPicker = ({ latitude, longitude, onLocationSelect, readOnly = fals
             type="button"
             onClick={handleLocateMe}
             disabled={locating}
-            className="btn-secondary !py-2 !px-4 text-sm flex items-center gap-2"
+            className="btn-secondary !py-2 !px-5 text-sm flex items-center gap-2 shadow-sm border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100"
           >
             {locating ? (
-              <div className="w-4 h-4 border-2 border-[var(--primary)] border-t-transparent rounded-full animate-spin" />
+              <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
             ) : (
-              '📍'
+              <Navigation size={16} />
             )}
-            {locating ? 'Locating...' : 'Use My Location'}
+            <span className="font-semibold">{locating ? 'Locating...' : 'Use My Location'}</span>
           </button>
-          {position && (
-            <span className="text-xs text-[var(--text-muted)]">
+          
+          {position ? (
+            <span className="text-xs font-medium text-slate-500 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
               {position[0].toFixed(4)}, {position[1].toFixed(4)}
             </span>
-          )}
-          {!position && (
-            <span className="text-xs text-[var(--text-muted)]">
+          ) : (
+            <span className="text-xs font-medium text-slate-500">
               Click on the map or use your location
             </span>
           )}
@@ -130,9 +134,9 @@ const LocationPicker = ({ latitude, longitude, onLocationSelect, readOnly = fals
           href={`https://www.google.com/maps?q=${position[0]},${position[1]}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-sm text-[var(--primary-light)] hover:underline no-underline flex items-center gap-1"
+          className="inline-flex w-full sm:w-max items-center justify-center gap-2 mt-1 px-6 py-3 bg-blue-50 text-blue-700 border border-blue-200 rounded-xl font-bold hover:bg-blue-100 transition-colors shadow-sm no-underline"
         >
-          📍 Open in Google Maps →
+          <MapPin size={18} /> Open in Google Maps
         </a>
       )}
     </div>
