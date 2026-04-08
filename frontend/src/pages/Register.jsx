@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { Rocket, Mic } from 'lucide-react';
 import PasswordInput from '../components/PasswordInput';
 
 const Register = () => {
@@ -54,7 +55,11 @@ const Register = () => {
 
       <div className="w-full max-w-md animate-slideUp">
         <div className="text-center mb-8">
-          <div className="text-4xl mb-3">🚀</div>
+          <div className="flex justify-center mb-4">
+            <div className="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center">
+              <Rocket className="text-[var(--primary)]" size={32} />
+            </div>
+          </div>
           <h1 className="text-3xl font-bold mb-2">Create your account</h1>
           <p className="text-[var(--text-secondary)]">Join Eventra and start exploring events</p>
         </div>
@@ -121,8 +126,8 @@ const Register = () => {
                 onChange={handleChange}
                 className="input-field cursor-pointer"
               >
-                <option value="attendee">🎟️ Attendee — I want to discover & book events</option>
-                <option value="organizer">🎤 Organizer — I want to create & manage events</option>
+                <option value="attendee">Attendee — I want to discover & book events</option>
+                <option value="organizer">Organizer — I want to create & manage events</option>
               </select>
             </div>
 
@@ -130,7 +135,10 @@ const Register = () => {
             {form.role === 'organizer' && (
               <>
                 <div className="p-4 rounded-xl flex flex-col gap-4" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}>
-                  <p className="text-xs text-[var(--primary-light)] uppercase tracking-wider font-semibold">🎤 Organizer Details</p>
+                  <div className="flex items-center gap-2 pb-2" style={{ borderBottom: '1px solid var(--border)' }}>
+                    <Mic size={16} className="text-[var(--primary-light)]" />
+                    <p className="text-xs text-[var(--primary-light)] uppercase tracking-wider font-bold">Organizer Details</p>
+                  </div>
 
                   <div>
                     <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5">I organize events as</label>
@@ -140,8 +148,8 @@ const Register = () => {
                       onChange={handleChange}
                       className="input-field cursor-pointer"
                     >
-                      <option value="independent">👤 Independent — I organize events on my own</option>
-                      <option value="organization">🏢 Organization — I represent a club, company, or group</option>
+                      <option value="independent">Independent — I organize events on my own</option>
+                      <option value="organization">Organization — I represent a club, company, or group</option>
                     </select>
                   </div>
 

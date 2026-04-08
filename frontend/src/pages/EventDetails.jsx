@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getEventById, bookTicket } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import LocationPicker from '../components/LocationPicker';
+import { Frown, PartyPopper, Clock4, GraduationCap, Globe, Calendar, Clock, MapPin, User, Ticket, AlertTriangle } from 'lucide-react';
 
 const EventDetails = () => {
   const { id } = useParams();
@@ -47,7 +48,7 @@ const EventDetails = () => {
     setMessage({ type: '', text: '' });
     try {
       const { data } = await bookTicket({ eventId: id, ticketCount });
-      setMessage({ type: 'success', text: '🎉 ' + data.message + ' Check your email for the QR ticket.' });
+      setMessage({ type: 'success', text: data.message + ' Check your email for the QR ticket.' });
       fetchEvent(); // refresh seats
     } catch (error) {
       setMessage({ type: 'error', text: error.response?.data?.message || 'Booking failed' });
@@ -59,7 +60,7 @@ const EventDetails = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="w-10 h-10 border-3 border-[var(--primary)] border-t-transparent rounded-full animate-spin" />
+        <div className="w-12 h-12 border-4 border-[var(--primary)] border-t-transparent rounded-full animate-spin shadow-sm" />
       </div>
     );
   }
@@ -67,9 +68,14 @@ const EventDetails = () => {
   if (!event) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-5xl mb-4">😔</div>
-          <h2 className="text-2xl font-bold">Event not found</h2>
+        <div className="text-center card p-10 bg-white shadow-sm">
+          <div className="flex justify-center mb-5">
+             <div className="w-20 h-20 rounded-2xl bg-red-50 flex items-center justify-center text-[var(--error)]">
+               <Frown size={40} />
+             </div>
+          </div>
+          <h2 className="text-3xl font-black mb-2 text-[var(--text-primary)]">Event not found</h2>
+          <p className="text-[var(--text-secondary)]">The event you are looking for does not exist.</p>
         </div>
       </div>
     );
@@ -82,74 +88,91 @@ const EventDetails = () => {
   const isExpired = new Date(event.date) < new Date(new Date().setHours(0,0,0,0));
 
   return (
-    <div className="min-h-screen py-8">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen py-10">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="animate-slideUp">
+          
           {/* Poster */}
-          <div className="relative h-64 md:h-96 rounded-2xl overflow-hidden mb-8">
+          <div className="relative h-[300px] md:h-[450px] rounded-3xl overflow-hidden mb-8 shadow-sm">
             {event.poster ? (
               <img src={event.poster} alt={event.title} className="w-full h-full object-cover" />
             ) : (
               <div className="w-full h-full flex items-center justify-center" style={{ background: 'var(--gradient-primary)' }}>
-                <span className="text-8xl opacity-30">🎉</span>
+                <PartyPopper size={120} className="text-white opacity-40" />
               </div>
             )}
             <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(10,10,15,0.9) 0%, transparent 60%)' }} />
-            <div className="absolute bottom-6 left-6 right-6">
-              <div className="flex items-center gap-3 mb-3 flex-wrap">
+            
+            <div className="absolute bottom-8 left-8 right-8">
+              <div className="flex items-center gap-3 mb-4 flex-wrap">
                 {isExpired && (
-                  <span className="badge" style={{ background: 'rgba(239,68,68,0.9)', color: '#fff', border: 'none' }}>
-                    ⏳ Event Expired
+                  <span className="badge px-4 py-2" style={{ background: 'rgba(239,68,68,0.9)', color: '#fff', border: 'none' }}>
+                    <Clock4 size={14} className="mr-1.5" /> Event Expired
                   </span>
                 )}
-                <span className={`badge ${isCollegeOnly ? 'badge-college' : 'badge-open'}`}>
-                  {isCollegeOnly ? `🎓 ${event.allowedCollege}` : '🌐 Open for All'}
+                <span className={`badge px-4 py-2 shadow-sm`} style={{ background: 'rgba(255,255,255,0.95)', color: isCollegeOnly ? '#d97706' : '#059669' }}>
+                   {isCollegeOnly ? <><GraduationCap size={14} className="mr-1.5" /> {event.allowedCollege}</> : <><Globe size={14} className="mr-1.5" /> Open for All</>}
                 </span>
-                <span className="badge" style={{ background: 'rgba(255,255,255,0.15)', color: '#fff', border: 'none' }}>
+                <span className="badge px-4 py-2 backdrop-blur-md" style={{ background: 'rgba(0,0,0,0.5)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)' }}>
                   {event.category}
                 </span>
               </div>
-              <h1 className="text-3xl md:text-4xl font-bold text-white">{event.title}</h1>
+              <h1 className="text-4xl md:text-5xl font-black text-white leading-tight">{event.title}</h1>
             </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
             {/* Main content */}
-            <div className="lg:col-span-2">
-              <div className="card p-6 mb-6">
-                <h2 className="text-xl font-semibold mb-4">About this event</h2>
-                <p className="text-[var(--text-secondary)] leading-relaxed whitespace-pre-wrap">{event.description}</p>
+            <div className="lg:col-span-2 space-y-8">
+              
+              <div className="card p-8 bg-white shadow-sm">
+                <h2 className="text-2xl font-bold mb-5 flex items-center gap-2"><MapPin className="text-[var(--primary)]" size={24}/> About this event</h2>
+                <div className="prose prose-blue max-w-none text-[var(--text-secondary)] leading-relaxed whitespace-pre-wrap font-medium">
+                  {event.description}
+                </div>
               </div>
 
-              <div className="card p-6">
-                <h2 className="text-xl font-semibold mb-4">Event Details</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="flex items-start gap-3 p-3 rounded-lg" style={{ background: 'var(--bg-surface)' }}>
-                    <span className="text-xl">📅</span>
+              <div className="card p-8 bg-white shadow-sm">
+                <h2 className="text-2xl font-bold mb-6">Event Details</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <div className="flex items-start gap-4 p-4 rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] hover:border-[var(--primary-light)] transition-colors">
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center bg-blue-50 text-[var(--primary)] shrink-0">
+                      <Calendar size={20} />
+                    </div>
                     <div>
-                      <p className="text-xs text-[var(--text-muted)] uppercase tracking-wider">Date</p>
-                      <p className="text-sm font-medium">{formatDate(event.date)}</p>
+                      <p className="text-xs text-[var(--text-muted)] uppercase tracking-widest font-bold mb-0.5">Date</p>
+                      <p className="font-semibold text-[var(--text-primary)]">{formatDate(event.date)}</p>
                     </div>
                   </div>
-                  <div className="flex items-start gap-3 p-3 rounded-lg" style={{ background: 'var(--bg-surface)' }}>
-                    <span className="text-xl">🕐</span>
+                  
+                  <div className="flex items-start gap-4 p-4 rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] hover:border-[var(--primary-light)] transition-colors">
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center bg-blue-50 text-[var(--primary)] shrink-0">
+                      <Clock size={20} />
+                    </div>
                     <div>
-                      <p className="text-xs text-[var(--text-muted)] uppercase tracking-wider">Time</p>
-                      <p className="text-sm font-medium">{event.time}</p>
+                      <p className="text-xs text-[var(--text-muted)] uppercase tracking-widest font-bold mb-0.5">Time</p>
+                      <p className="font-semibold text-[var(--text-primary)]">{event.time}</p>
                     </div>
                   </div>
-                  <div className="flex items-start gap-3 p-3 rounded-lg" style={{ background: 'var(--bg-surface)' }}>
-                    <span className="text-xl">📍</span>
+
+                  <div className="flex items-start gap-4 p-4 rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] hover:border-[var(--primary-light)] transition-colors">
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center bg-blue-50 text-[var(--primary)] shrink-0">
+                      <MapPin size={20} />
+                    </div>
                     <div>
-                      <p className="text-xs text-[var(--text-muted)] uppercase tracking-wider">Location</p>
-                      <p className="text-sm font-medium">{event.location}</p>
+                      <p className="text-xs text-[var(--text-muted)] uppercase tracking-widest font-bold mb-0.5">Location</p>
+                      <p className="font-semibold text-[var(--text-primary)]">{event.location}</p>
                     </div>
                   </div>
-                  <div className="flex items-start gap-3 p-3 rounded-lg" style={{ background: 'var(--bg-surface)' }}>
-                    <span className="text-xl">👤</span>
+
+                  <div className="flex items-start gap-4 p-4 rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] hover:border-[var(--primary-light)] transition-colors">
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center bg-blue-50 text-[var(--primary)] shrink-0">
+                      <User size={20} />
+                    </div>
                     <div>
-                      <p className="text-xs text-[var(--text-muted)] uppercase tracking-wider">Organized by</p>
-                      <p className="text-sm font-medium">{event.organizerId?.name}</p>
+                      <p className="text-xs text-[var(--text-muted)] uppercase tracking-widest font-bold mb-0.5">Organized by</p>
+                      <p className="font-semibold text-[var(--text-primary)]">{event.organizerId?.name}</p>
                     </div>
                   </div>
                 </div>
@@ -157,29 +180,32 @@ const EventDetails = () => {
 
               {/* Map */}
               {event.latitude && event.longitude && (
-                <div className="card p-6 mt-6">
-                  <h2 className="text-xl font-semibold mb-4">📍 Event Location</h2>
-                  <LocationPicker
-                    latitude={event.latitude}
-                    longitude={event.longitude}
-                    readOnly={true}
-                  />
+                <div className="card p-8 bg-white shadow-sm overflow-hidden">
+                  <h2 className="text-2xl font-bold mb-6 flex items-center gap-2"><MapPin size={24} className="text-[var(--primary)]"/> Event Location Map</h2>
+                  <div className="rounded-2xl overflow-hidden border border-[var(--border)] h-[350px]">
+                     <LocationPicker
+                       latitude={event.latitude}
+                       longitude={event.longitude}
+                       readOnly={true}
+                     />
+                  </div>
                 </div>
               )}
             </div>
 
             {/* Sidebar - Booking */}
             <div>
-              <div className="card p-6 sticky top-24">
+              <div className="card p-8 sticky top-28 bg-white shadow-sm border border-[var(--border)]">
+                
                 {/* Seats */}
-                <div className="text-center mb-6">
-                  <div className="text-4xl font-bold mb-1" style={{ color: event.availableSeats > 0 ? 'var(--success)' : 'var(--error)' }}>
+                <div className="text-center mb-8">
+                  <div className="text-6xl font-black mb-2 tracking-tight" style={{ color: event.availableSeats > 0 ? 'var(--success)' : 'var(--error)' }}>
                     {event.availableSeats}
                   </div>
-                  <p className="text-sm text-[var(--text-muted)]">seats available of {event.totalSeats}</p>
-                  <div className="w-full h-2 rounded-full mt-3" style={{ background: 'var(--bg-surface)' }}>
+                  <p className="text-sm font-bold uppercase tracking-wider text-[var(--text-muted)]">Seats available of {event.totalSeats}</p>
+                  <div className="w-full h-3 rounded-full mt-4 overflow-hidden" style={{ background: 'var(--bg-surface)' }}>
                     <div
-                      className="h-full rounded-full transition-all duration-500"
+                      className="h-full rounded-full transition-all duration-1000 ease-in-out"
                       style={{
                         width: `${((event.totalSeats - event.availableSeats) / event.totalSeats) * 100}%`,
                         background: 'var(--gradient-primary)',
@@ -190,39 +216,46 @@ const EventDetails = () => {
 
                 {/* Eligibility warning */}
                 {user && isCollegeOnly && !isEligible() && (
-                  <div className="mb-4 p-3 rounded-lg text-sm" style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', color: 'var(--warning)' }}>
-                    ⚠️ This event is restricted to students of {event.allowedCollege}
+                  <div className="mb-6 p-4 rounded-xl flex items-start gap-3 bg-amber-50 text-amber-700 border border-amber-200">
+                    <AlertTriangle size={20} className="shrink-0 mt-0.5" />
+                    <span className="text-sm font-semibold">
+                      This event is restricted strictly to students of {event.allowedCollege}
+                    </span>
                   </div>
                 )}
 
                 {message.text && (
                   <div
-                    className="mb-4 p-3 rounded-lg text-sm"
+                    className="mb-6 p-4 rounded-xl text-sm font-medium flex items-center gap-2"
                     style={{
-                      background: message.type === 'success' ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)',
-                      border: `1px solid ${message.type === 'success' ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)'}`,
-                      color: message.type === 'success' ? 'var(--success)' : 'var(--error)',
+                      background: message.type === 'success' ? '#f0fdf4' : '#fef2f2',
+                      border: `1px solid ${message.type === 'success' ? '#bbf7d0' : '#fecaca'}`,
+                      color: message.type === 'success' ? '#166534' : '#991b1b',
                     }}
                   >
+                    {message.type === 'success' ? <PartyPopper size={18} /> : <AlertTriangle size={18} />}
                     {message.text}
                   </div>
                 )}
 
                 {/* Ticket selector */}
-                {user?.role === 'attendee' && event.availableSeats > 0 && isEligible() && (
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5">
+                {user?.role === 'attendee' && event.availableSeats > 0 && isEligible() && !isExpired && (
+                  <div className="mb-6">
+                    <label className="block text-sm font-bold tracking-wide uppercase text-[var(--text-secondary)] mb-2">
                       Number of tickets
                     </label>
-                    <select
-                      value={ticketCount}
-                      onChange={(e) => setTicketCount(Number(e.target.value))}
-                      className="input-field cursor-pointer"
-                    >
-                      {Array.from({ length: Math.min(5, event.availableSeats) }, (_, i) => (
-                        <option key={i + 1} value={i + 1}>{i + 1} {i === 0 ? 'ticket' : 'tickets'}</option>
-                      ))}
-                    </select>
+                    <div className="relative">
+                       <Ticket size={18} className="absolute left-4 top-3.5 text-[var(--primary)]" />
+                       <select
+                         value={ticketCount}
+                         onChange={(e) => setTicketCount(Number(e.target.value))}
+                         className="input-field !pl-12 cursor-pointer font-bold text-lg h-14"
+                       >
+                         {Array.from({ length: Math.min(5, event.availableSeats) }, (_, i) => (
+                           <option key={i + 1} value={i + 1}>{i + 1} {i === 0 ? 'ticket' : 'tickets'}</option>
+                         ))}
+                       </select>
+                    </div>
                   </div>
                 )}
 
@@ -235,20 +268,20 @@ const EventDetails = () => {
                     (user && !isEligible()) ||
                     (user && user.role !== 'attendee')
                   }
-                  className="btn-primary w-full flex items-center justify-center gap-2"
+                  className="btn-primary w-full flex items-center justify-center gap-2 !py-4 text-lg font-bold shadow-lg shadow-blue-500/20"
                 >
                   {booking ? (
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin" />
                   ) : isExpired ? (
-                    '⏳ Event Expired'
+                    <><Clock4 size={20} /> Event Expired</>
                   ) : event.availableSeats <= 0 ? (
                     'Sold Out'
                   ) : !user ? (
-                    'Login to Book'
+                    <><User size={20} /> Login to Book</>
                   ) : user.role !== 'attendee' ? (
                     'Attendees Only'
                   ) : (
-                    '🎫 Book Now'
+                    <><Ticket size={24} className="mr-1" /> Book Now</>
                   )}
                 </button>
               </div>

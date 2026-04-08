@@ -1,310 +1,183 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { getEvents, getEventAnalytics, deleteEvent } from '../services/api';
+import { Link } from 'react-router-dom';
+import { getEvents, deleteEvent } from '../services/api';
+import EventCard from '../components/EventCard';
 import { useAuth } from '../context/AuthContext';
-import {
-  Chart as ChartJS,
-  ArcElement,
-  BarElement,
-  CategoryScale,
-  LinearScale,
-  Tooltip,
-  Legend,
-} from 'chart.js';
-import { Doughnut, Bar } from 'react-chartjs-2';
-
-ChartJS.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend);
+import { PlusCircle, LayoutDashboard, Calendar, Users, Ticket, CheckSquare, Pencil, Trash2 } from 'lucide-react';
 
 const OrganizerDashboard = () => {
   const { user } = useAuth();
-  const navigate = useNavigate();
   const [events, setEvents] = useState([]);
-  const [selectedEvent, setSelectedEvent] = useState(null);
-  const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [analyticsLoading, setAnalyticsLoading] = useState(false);
+  const [analytics, setAnalytics] = useState({
+    totalEvents: 0,
+    totalSeats: 0,
+    bookedSeats: 0,
+    checkedIn: 0,
+  });
 
   useEffect(() => {
-    fetchEvents();
+    fetchDashboardData();
   }, []);
 
-  const fetchEvents = async () => {
+  const fetchDashboardData = async () => {
     try {
       const { data } = await getEvents();
-      // Filter events by organizer
-      const myEvents = data.filter(
-        (e) => e.organizerId?._id === user?.id || e.organizerId === user?.id
-      );
+      // Filter events to only show those owned by the current organizer
+      const myEvents = data.filter(e => e.organizerId?._id === user?._id || e.organizerId === user?._id);
       setEvents(myEvents);
-      if (myEvents.length > 0) {
-        loadAnalytics(myEvents[0]._id);
-      }
+
+      const stats = myEvents.reduce(
+        (acc, event) => {
+          acc.totalEvents += 1;
+          acc.totalSeats += event.totalSeats;
+          acc.bookedSeats += event.bookedSeats;
+          return acc;
+        },
+        { totalEvents: 0, totalSeats: 0, bookedSeats: 0, checkedIn: 0 }
+      );
+      setAnalytics(stats);
     } catch (error) {
-      console.error('Error fetching events:', error);
+      console.error('Error fetching dashboard data:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const loadAnalytics = async (eventId) => {
-    setSelectedEvent(eventId);
-    setAnalyticsLoading(true);
-    try {
-      const { data } = await getEventAnalytics(eventId);
-      setAnalytics(data);
-    } catch (error) {
-      console.error('Error fetching analytics:', error);
-    } finally {
-      setAnalyticsLoading(false);
-    }
-  };
-
   const handleDelete = async (eventId) => {
-    if (!window.confirm('Are you sure you want to delete this event?')) return;
-    try {
-      await deleteEvent(eventId);
-      fetchEvents();
-      if (selectedEvent === eventId) {
-        setAnalytics(null);
-        setSelectedEvent(null);
+    if (window.confirm('Are you sure you want to delete this event? This action cannot be undone.')) {
+      try {
+        await deleteEvent(eventId);
+        setEvents(events.filter((e) => e._id !== eventId));
+        fetchDashboardData(); // Refresh analytics
+      } catch (error) {
+        console.error('Error deleting event:', error);
+        alert('Failed to delete event');
       }
-    } catch (error) {
-      console.error('Error deleting event:', error);
     }
   };
 
-  const formatDate = (d) =>
-    new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const isEventExpired = (dateStr) => {
+    const eventDate = new Date(dateStr);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Normalize today to midnight
+    return eventDate < today;
+  };
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="w-10 h-10 border-3 border-[var(--primary)] border-t-transparent rounded-full animate-spin" />
+        <div className="w-12 h-12 border-4 border-[var(--primary)] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
-  // Chart data
-  const seatsDoughnut = analytics
-    ? {
-        labels: ['Sold', 'Available'],
-        datasets: [
-          {
-            data: [analytics.ticketsSold, analytics.availableSeats],
-            backgroundColor: ['#6366f1', '#1e1e2e'],
-            borderColor: ['#818cf8', '#2a2a3e'],
-            borderWidth: 2,
-          },
-        ],
-      }
-    : null;
-
-  const attendanceBar = analytics
-    ? {
-        labels: ['Total Bookings', 'Checked In', 'Not Yet'],
-        datasets: [
-          {
-            label: 'Count',
-            data: [
-              analytics.totalBookings,
-              analytics.attendanceCount,
-              analytics.totalBookings - analytics.attendanceCount,
-            ],
-            backgroundColor: ['#6366f1', '#10b981', '#f59e0b'],
-            borderRadius: 8,
-          },
-        ],
-      }
-    : null;
-
-  const chartOptions = {
-    responsive: true,
-    plugins: {
-      legend: { labels: { color: '#9ca3b0', font: { family: 'Inter' } } },
-    },
-    scales: {
-      x: { ticks: { color: '#6b7280' }, grid: { color: '#1e1e2e' } },
-      y: { ticks: { color: '#6b7280' }, grid: { color: '#1e1e2e' } },
-    },
-  };
-
   return (
-    <div className="min-h-screen py-8">
+    <div className="min-h-screen py-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4 animate-fadeIn">
+        
+        {/* Header spanning exactly like the reference UI top section */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 animate-fadeIn">
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold mb-2">
-              Organizer <span className="bg-gradient-to-r from-[var(--primary)] to-[var(--accent)] bg-clip-text text-transparent">Dashboard</span>
+            <h1 className="text-4xl font-black mb-2 flex items-center gap-3">
+              <LayoutDashboard size={32} className="text-[var(--primary)]" />
+              Dashboard
             </h1>
-            <p className="text-[var(--text-secondary)]">Manage your events and track performance</p>
+            <p className="text-[var(--text-secondary)]">Manage your events and track analytics in real-time.</p>
           </div>
-          <Link to="/create-event" className="btn-primary no-underline">
-            ➕ Create Event
+          <Link to="/create-event" className="btn-primary !py-3 !px-6 no-underline flex items-center justify-center gap-2 shrink-0">
+            <PlusCircle size={20} /> Create New Event
           </Link>
         </div>
 
-        {events.length === 0 ? (
-          <div className="text-center py-20 animate-fadeIn">
-            <div className="text-5xl mb-4">📋</div>
-            <h3 className="text-xl font-semibold mb-2">No events yet</h3>
-            <p className="text-[var(--text-secondary)] mb-6">Create your first event to get started</p>
-            <Link to="/create-event" className="btn-primary no-underline">Create Event</Link>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Events List */}
-            <div className="lg:col-span-1">
-              <h2 className="text-lg font-semibold mb-4">Your Events</h2>
-              <div className="flex flex-col gap-3">
-                {events.map((event) => (
-                  <div
-                    key={event._id}
-                    className={`card p-4 cursor-pointer transition-all ${
-                      selectedEvent === event._id ? '!border-[var(--primary)]' : ''
-                    } ${new Date(event.date) < new Date(new Date().setHours(0,0,0,0)) ? 'opacity-60 grayscale-[0.3]' : ''}`}
-                    onClick={() => loadAnalytics(event._id)}
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-sm truncate">{event.title}</h3>
-                        <p className="text-xs text-[var(--text-muted)] mt-1">📅 {formatDate(event.date)}</p>
-                        <p className="text-xs text-[var(--text-muted)]">📍 {event.location}</p>
-                        <div className="flex gap-2 mt-2">
-                          {new Date(event.date) < new Date(new Date().setHours(0,0,0,0)) && (
-                            <span className="text-xs px-2 py-0.5 rounded badge-expired" style={{ background: 'rgba(107,114,128,0.2)', color: 'var(--text-muted)' }}>
-                              Expired
-                            </span>
-                          )}
-                          <span className="text-xs px-2 py-0.5 rounded" style={{ background: 'rgba(99,102,241,0.15)', color: 'var(--primary-light)' }}>
-                            {event.totalSeats - event.availableSeats} sold
-                          </span>
-                          <span className="text-xs px-2 py-0.5 rounded" style={{ background: 'rgba(16,185,129,0.15)', color: 'var(--success)' }}>
-                            {event.availableSeats} left
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex flex-col gap-1">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/edit-event/${event._id}`);
-                          }}
-                          className="text-[var(--text-muted)] hover:text-[var(--primary)] text-xs bg-transparent border-none cursor-pointer p-1"
-                          title="Edit event"
-                        >
-                          ✏️
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDelete(event._id);
-                          }}
-                          className="text-[var(--text-muted)] hover:text-[var(--error)] text-xs bg-transparent border-none cursor-pointer p-1"
-                          title="Delete event"
-                        >
-                          🗑️
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+        {/* Analytics (Styled like Reference Clean Cards) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12 animate-slideUp">
+          {[
+            { label: 'Total Events', value: analytics.totalEvents, icon: <Calendar className="text-blue-500" size={24} />, bg: 'bg-blue-50' },
+            { label: 'Total Capacity', value: analytics.totalSeats, icon: <Users className="text-indigo-500" size={24} />, bg: 'bg-indigo-50' },
+            { label: 'Tickets Booked', value: analytics.bookedSeats, icon: <Ticket className="text-emerald-500" size={24} />, bg: 'bg-emerald-50' },
+            { label: 'Checked In', value: '0', icon: <CheckSquare className="text-amber-500" size={24} />, bg: 'bg-amber-50' },
+          ].map((stat, i) => (
+            <div key={i} className="card p-6 flex flex-col justify-between bg-white shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between mb-4">
+                <p className="text-sm font-bold text-[var(--text-secondary)] uppercase tracking-wide">{stat.label}</p>
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${stat.bg}`}>
+                   {stat.icon}
+                </div>
               </div>
+              <h2 className="text-4xl font-black text-[var(--text-primary)]">{stat.value}</h2>
             </div>
+          ))}
+        </div>
 
-            {/* Analytics Panel */}
-            <div className="lg:col-span-2">
-              {analyticsLoading ? (
-                <div className="flex items-center justify-center py-20">
-                  <div className="w-10 h-10 border-3 border-[var(--primary)] border-t-transparent rounded-full animate-spin" />
-                </div>
-              ) : analytics ? (
-                <div className="animate-fadeIn">
-                  <h2 className="text-lg font-semibold mb-4">
-                    Analytics: <span className="text-[var(--primary-light)]">{analytics.eventTitle}</span>
-                  </h2>
+        {/* My Events List */}
+        <div className="animate-fadeIn">
+          <h2 className="text-2xl font-bold mb-6">Your Organized Events</h2>
 
-                  {/* Stat Cards */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                    {[
-                      { label: 'Total Seats', value: analytics.totalSeats, icon: '💺' },
-                      { label: 'Tickets Sold', value: analytics.ticketsSold, icon: '🎫' },
-                      { label: 'Available', value: analytics.availableSeats, icon: '✅' },
-                      { label: 'Checked In', value: analytics.attendanceCount, icon: '📷' },
-                    ].map((stat, i) => (
-                      <div key={i} className="card p-4 text-center">
-                        <div className="text-2xl mb-1">{stat.icon}</div>
-                        <div className="text-2xl font-bold text-[var(--text-primary)]">{stat.value}</div>
-                        <div className="text-xs text-[var(--text-muted)]">{stat.label}</div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Charts */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    <div className="card p-4">
-                      <h3 className="text-sm font-semibold mb-4 text-[var(--text-secondary)]">Seat Distribution</h3>
-                      <div className="max-w-[200px] mx-auto">
-                        {seatsDoughnut && <Doughnut data={seatsDoughnut} />}
-                      </div>
-                    </div>
-                    <div className="card p-4">
-                      <h3 className="text-sm font-semibold mb-4 text-[var(--text-secondary)]">Attendance Overview</h3>
-                      {attendanceBar && <Bar data={attendanceBar} options={chartOptions} />}
-                    </div>
-                  </div>
-
-                  {/* Attendees Table */}
-                  <div className="card overflow-hidden">
-                    <div className="p-4" style={{ borderBottom: '1px solid var(--border)' }}>
-                      <h3 className="text-sm font-semibold text-[var(--text-secondary)]">
-                        Attendees ({analytics.attendees?.length || 0})
-                      </h3>
-                    </div>
-                    {analytics.attendees?.length > 0 ? (
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-sm">
-                          <thead>
-                            <tr style={{ background: 'var(--bg-surface)' }}>
-                              <th className="text-left p-3 text-[var(--text-muted)] font-medium text-xs uppercase tracking-wider">Name</th>
-                              <th className="text-left p-3 text-[var(--text-muted)] font-medium text-xs uppercase tracking-wider">Email</th>
-                              <th className="text-left p-3 text-[var(--text-muted)] font-medium text-xs uppercase tracking-wider">College</th>
-                              <th className="text-left p-3 text-[var(--text-muted)] font-medium text-xs uppercase tracking-wider">Tickets</th>
-                              <th className="text-left p-3 text-[var(--text-muted)] font-medium text-xs uppercase tracking-wider">Status</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {analytics.attendees.map((attendee, i) => (
-                              <tr key={i} style={{ borderTop: '1px solid var(--border)' }}>
-                                <td className="p-3 text-[var(--text-primary)]">{attendee.userName}</td>
-                                <td className="p-3 text-[var(--text-secondary)]">{attendee.userEmail}</td>
-                                <td className="p-3 text-[var(--text-secondary)]">{attendee.userCollege}</td>
-                                <td className="p-3 text-[var(--text-primary)]">{attendee.ticketCount}</td>
-                                <td className="p-3">
-                                  <span className={`badge ${attendee.status === 'checked-in' ? 'badge-checked-in' : 'badge-confirmed'}`}>
-                                    {attendee.status === 'checked-in' ? '✅ Checked In' : '🎫 Confirmed'}
-                                  </span>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    ) : (
-                      <div className="p-8 text-center text-[var(--text-muted)]">
-                        No attendees yet
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center py-20 text-[var(--text-muted)]">
-                  Select an event to view analytics
-                </div>
-              )}
+          {events.length === 0 ? (
+            <div className="text-center py-24 card bg-white">
+              <div className="flex justify-center mb-4">
+                 <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center">
+                   <Calendar size={32} className="text-[var(--primary)]" />
+                 </div>
+              </div>
+              <h3 className="text-xl font-bold mb-2">No events created yet</h3>
+              <p className="text-[var(--text-secondary)] mb-6">Create your first event and start managing attendees.</p>
+              <Link to="/create-event" className="btn-primary !py-2.5 !px-6 no-underline inline-flex items-center gap-2">
+                <PlusCircle size={18} /> Create Event
+              </Link>
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+              {events.map((event) => {
+                const expired = isEventExpired(event.date);
+                
+                return (
+                  <div key={event._id} className="relative group">
+                    <EventCard event={event} />
+                    
+                    {/* Action Overlay */}
+                    <div className={`absolute top-4 left-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10 
+                      ${expired ? 'grayscale-[0.5]' : ''}`}>
+                      <Link
+                        to={`/edit-event/${event._id}`}
+                        className="w-10 h-10 rounded-full bg-white shadow-lg flex items-center justify-center text-blue-600 hover:bg-blue-50 transition-colors"
+                        title="Edit Event"
+                      >
+                        <Pencil size={18} />
+                      </Link>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleDelete(event._id);
+                        }}
+                        className="w-10 h-10 rounded-full bg-white shadow-lg border-none flex items-center justify-center text-red-500 hover:bg-red-50 cursor-pointer transition-colors"
+                        title="Delete Event"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                    
+                    {/* Stats overlay at bottom on hover */}
+                    <div className="absolute inset-x-0 bottom-0 p-4 bg-white/90 backdrop-blur-sm border-t border-[var(--border)] translate-y-full group-hover:translate-y-0 transition-transform z-10 rounded-b-xl flex justify-between items-center opacity-0 group-hover:opacity-100 shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
+                      <div className="text-center w-1/2 border-r border-[var(--border)]">
+                        <p className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider mb-1">Booked</p>
+                        <p className="font-bold text-lg text-[var(--primary)]">
+                          {event.bookedSeats} <span className="text-sm font-medium text-[var(--text-secondary)]">/ {event.totalSeats}</span>
+                        </p>
+                      </div>
+                      <div className="text-center w-1/2">
+                         <p className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider mb-1">Revenue</p>
+                         <p className="font-bold text-lg text-emerald-600">Free</p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

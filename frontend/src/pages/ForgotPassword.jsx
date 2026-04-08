@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import PasswordInput from '../components/PasswordInput';
+import { Lock, Mail, Key } from 'lucide-react';
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
@@ -59,7 +60,11 @@ const ForgotPassword = () => {
 
       <div className="w-full max-w-md animate-slideUp">
         <div className="text-center mb-8">
-          <div className="text-4xl mb-3">🔐</div>
+          <div className="flex justify-center mb-4">
+             <div className="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center">
+               <Lock className="text-[var(--primary)]" size={32} />
+             </div>
+          </div>
           <h1 className="text-3xl font-bold mb-2">
             {step === 1 ? 'Forgot Password' : 'Reset Password'}
           </h1>
@@ -70,7 +75,7 @@ const ForgotPassword = () => {
           </p>
         </div>
 
-        <div className="card p-8">
+        <div className="card p-8 md:p-10 shadow-lg">
           {message.text && (
             <div
               className="mb-4 p-3 rounded-lg text-sm"
@@ -98,11 +103,11 @@ const ForgotPassword = () => {
                 />
               </div>
 
-              <button type="submit" disabled={loading} className="btn-primary w-full flex items-center justify-center gap-2">
+              <button type="submit" disabled={loading} className="btn-primary w-full mt-2 flex items-center justify-center gap-2">
                 {loading ? (
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 ) : (
-                  <>📧 Send Reset Code</>
+                  <><Mail size={18} /> Send Reset Code</>
                 )}
               </button>
             </form>
@@ -150,11 +155,11 @@ const ForgotPassword = () => {
                 />
               </div>
 
-              <button type="submit" disabled={loading} className="btn-primary w-full flex items-center justify-center gap-2">
+              <button type="submit" disabled={loading} className="btn-primary w-full mt-2 flex items-center justify-center gap-2">
                 {loading ? (
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 ) : (
-                  <>🔑 Reset Password</>
+                  <><Key size={18} /> Reset Password</>
                 )}
               </button>
 

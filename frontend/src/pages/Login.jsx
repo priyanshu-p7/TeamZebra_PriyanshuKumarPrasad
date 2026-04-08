@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import PasswordInput from '../components/PasswordInput';
+import { Ticket } from 'lucide-react';
 
 const Login = () => {
   const { login } = useAuth();
@@ -39,7 +40,11 @@ const Login = () => {
 
       <div className="w-full max-w-md animate-slideUp">
         <div className="text-center mb-8">
-          <div className="text-4xl mb-3">🎫</div>
+          <div className="flex justify-center mb-4">
+             <div className="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center">
+               <Ticket className="text-[var(--primary)] transform -rotate-12" size={32} />
+             </div>
+          </div>
           <h1 className="text-3xl font-bold mb-2">Welcome back</h1>
           <p className="text-[var(--text-secondary)]">Sign in to your Eventra account</p>
         </div>
