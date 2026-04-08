@@ -68,20 +68,41 @@ const bookTicket = async (req, res) => {
       status: 'confirmed',
     });
 
+    const getPosterUrl = (poster) => {
+      if (!poster) return null;
+      if (poster.startsWith('http')) return poster;
+      return `${process.env.CLIENT_URL}${poster}`;
+    };
+
+    let mapLink = '';
+    if (event.latitude && event.longitude) {
+      mapLink = `https://www.google.com/maps/search/?api=1&query=${event.latitude},${event.longitude}`;
+    } else if (event.location) {
+      mapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`;
+    }
+
     // Send confirmation email
     const emailHtml = buildTicketEmail({
       eventTitle: event.title,
       eventDate: event.date,
       eventLocation: event.location,
+      eventDescription: event.description,
+      mapLink: mapLink,
       ticketCount,
-      qrCodeImage,
-      posterUrl: event.poster ? `${process.env.CLIENT_URL}${event.poster}` : null,
+      qrCodeCid: 'cid:qrcode@eventra',
+      posterUrl: getPosterUrl(event.poster),
+      userName: user.name,
     });
 
     sendEmail({
       to: user.email,
-      subject: `🎫 Ticket Confirmed: ${event.title}`,
+      subject: `${event.title} Ticket Confirmation`,
       html: emailHtml,
+      attachments: [{
+        filename: 'qrcode.png',
+        path: qrCodeImage,
+        cid: 'qrcode@eventra'
+      }]
     });
 
     res.status(201).json({

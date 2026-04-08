@@ -2,17 +2,10 @@ const Event = require('../models/Event');
 const User = require('../models/User');
 const multer = require('multer');
 const path = require('path');
+const imagekit = require('../config/imagekit');
 
 // Multer config for poster uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/');
-  },
-  filename: (req, file, cb) => {
-    const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1e9)}${path.extname(file.originalname)}`;
-    cb(null, uniqueName);
-  },
-});
+const storage = multer.memoryStorage();
 
 const upload = multer({
   storage,
@@ -53,6 +46,17 @@ const createEvent = async (req, res) => {
       allowedCollege = organizer.college;
     }
 
+    let posterUrl = null;
+    if (req.file) {
+      const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1e9)}${path.extname(req.file.originalname)}`;
+      const response = await imagekit.upload({
+        file: req.file.buffer,
+        fileName: uniqueName,
+        folder: '/eventra_posters'
+      });
+      posterUrl = response.url;
+    }
+
     const event = await Event.create({
       title,
       description,
@@ -67,7 +71,7 @@ const createEvent = async (req, res) => {
       allowedCollege,
       totalSeats,
       availableSeats: totalSeats,
-      poster: req.file ? `/uploads/${req.file.filename}` : null,
+      poster: posterUrl,
     });
 
     res.status(201).json(event);
@@ -149,7 +153,13 @@ const updateEvent = async (req, res) => {
 
     const updateData = { ...req.body };
     if (req.file) {
-      updateData.poster = `/uploads/${req.file.filename}`;
+      const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1e9)}${path.extname(req.file.originalname)}`;
+      const response = await imagekit.upload({
+        file: req.file.buffer,
+        fileName: uniqueName,
+        folder: '/eventra_posters'
+      });
+      updateData.poster = response.url;
     }
 
     // Handle college logic on eventType change

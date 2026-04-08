@@ -1,6 +1,6 @@
 const nodemailer = require('nodemailer');
 
-const sendEmail = async ({ to, subject, html }) => {
+const sendEmail = async ({ to, subject, html, attachments }) => {
   try {
     const transporter = nodemailer.createTransport({
       service: 'gmail',
@@ -15,6 +15,7 @@ const sendEmail = async ({ to, subject, html }) => {
       to,
       subject,
       html,
+      attachments,
     };
 
     const info = await transporter.sendMail(mailOptions);
@@ -26,7 +27,7 @@ const sendEmail = async ({ to, subject, html }) => {
   }
 };
 
-const buildTicketEmail = ({ eventTitle, eventDate, eventLocation, ticketCount, qrCodeImage, posterUrl }) => {
+const buildTicketEmail = ({ eventTitle, eventDate, eventLocation, eventDescription, mapLink, ticketCount, qrCodeCid, posterUrl, userName }) => {
   const posterSection = posterUrl
     ? `<div style="text-align:center;margin-bottom:20px;">
         <img src="${posterUrl}" alt="Event Poster" style="max-width:100%;border-radius:12px;" />
@@ -40,8 +41,10 @@ const buildTicketEmail = ({ eventTitle, eventDate, eventLocation, ticketCount, q
         <p style="margin:8px 0 0;color:rgba(255,255,255,0.85);font-size:14px;">Your ticket is confirmed!</p>
       </div>
       <div style="padding:30px;">
+        <h3 style="color:#fff;margin:0 0 15px;">Hi ${userName},</h3>
         ${posterSection}
-        <h2 style="color:#a78bfa;margin:0 0 20px;">${eventTitle}</h2>
+        <h2 style="color:#a78bfa;margin:0 0 10px;">${eventTitle}</h2>
+        ${eventDescription ? `<p style="color:#a0a0a0;font-size:13px;line-height:1.5;margin:0 0 20px;">${eventDescription.length > 200 ? eventDescription.substring(0,200) + '...' : eventDescription}</p>` : ''}
         <table style="width:100%;border-collapse:collapse;">
           <tr>
             <td style="padding:10px 0;color:#888;font-size:13px;">📅 Date</td>
@@ -49,7 +52,10 @@ const buildTicketEmail = ({ eventTitle, eventDate, eventLocation, ticketCount, q
           </tr>
           <tr>
             <td style="padding:10px 0;color:#888;font-size:13px;">📍 Location</td>
-            <td style="padding:10px 0;color:#e0e0e0;text-align:right;">${eventLocation}</td>
+            <td style="padding:10px 0;color:#e0e0e0;text-align:right;">
+              ${eventLocation}
+              ${mapLink ? `<br/><a href="${mapLink}" style="color:#8b5cf6;font-size:12px;text-decoration:none;">View on Google Maps ↗</a>` : ''}
+            </td>
           </tr>
           <tr>
             <td style="padding:10px 0;color:#888;font-size:13px;">🎟️ Tickets</td>
@@ -58,7 +64,7 @@ const buildTicketEmail = ({ eventTitle, eventDate, eventLocation, ticketCount, q
         </table>
         <div style="text-align:center;margin:30px 0;padding:20px;background:#1a1a2e;border-radius:12px;border:1px solid #2a2a3e;">
           <p style="color:#a78bfa;margin:0 0 15px;font-size:14px;font-weight:600;">YOUR ENTRY PASS</p>
-          <img src="${qrCodeImage}" alt="QR Ticket" style="width:200px;height:200px;" />
+          <img src="${qrCodeCid}" alt="QR Ticket" style="width:200px;height:200px;" />
           <p style="color:#666;margin:15px 0 0;font-size:12px;">Show this QR code at the venue entrance</p>
         </div>
       </div>
