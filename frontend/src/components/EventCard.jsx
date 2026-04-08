@@ -10,10 +10,11 @@ const EventCard = ({ event }) => {
   };
 
   const isCollegeOnly = event.eventType === 'collegeOnlyEvent';
+  const isExpired = new Date(event.date) < new Date(new Date().setHours(0,0,0,0));
 
   return (
     <Link to={`/events/${event._id}`} className="no-underline">
-      <div className="card group cursor-pointer">
+      <div className={`card group cursor-pointer ${isExpired ? 'opacity-80 grayscale-[0.2]' : ''}`}>
         {/* Poster */}
         <div className="relative h-48 overflow-hidden bg-[var(--bg-surface)]">
           {event.poster ? (
@@ -28,7 +29,12 @@ const EventCard = ({ event }) => {
             </div>
           )}
           {/* Badge */}
-          <div className="absolute top-3 right-3">
+          <div className="absolute top-3 right-3 flex flex-col gap-2 items-end">
+            {isExpired && (
+              <span className="badge" style={{ background: 'rgba(107,114,128,0.9)', color: '#fff', border: 'none' }}>
+                ⏳ Expired
+              </span>
+            )}
             <span className={`badge ${isCollegeOnly ? 'badge-college' : 'badge-open'}`}>
               {isCollegeOnly ? `🎓 ${event.allowedCollege}` : '🌐 Open for All'}
             </span>

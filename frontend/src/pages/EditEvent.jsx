@@ -1,13 +1,15 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { createEvent } from '../services/api';
+import { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { getEventById, updateEvent } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import LocationPicker from '../components/LocationPicker';
 
-const CreateEvent = () => {
+const EditEvent = () => {
+  const { id } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [error, setError] = useState('');
   const [form, setForm] = useState({
     title: '',
@@ -28,6 +30,43 @@ const CreateEvent = () => {
     'Technology', 'Music', 'Sports', 'Art', 'Education',
     'Business', 'Health', 'Food', 'Gaming', 'Social',
   ];
+
+  useEffect(() => {
+    fetchEvent();
+  }, [id]);
+
+  const fetchEvent = async () => {
+    try {
+      const { data } = await getEventById(id);
+      
+      // Ensure the logged-in organizer is the owner
+      if (data.organizerId._id !== user.id) {
+        navigate('/dashboard');
+        return;
+      }
+      
+      setForm({
+        title: data.title,
+        description: data.description,
+        category: data.category,
+        location: data.location,
+        latitude: data.latitude || '',
+        longitude: data.longitude || '',
+        date: new Date(data.date).toISOString().split('T')[0],
+        time: data.time,
+        eventType: data.eventType,
+        totalSeats: data.totalSeats,
+      });
+      if (data.poster) {
+        setPosterPreview(data.poster);
+      }
+    } catch (err) {
+      setError('Failed to fetch event data');
+      console.error(err);
+    } finally {
+      setInitialLoading(false);
+    }
+  };
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -56,23 +95,34 @@ const CreateEvent = () => {
       });
       if (poster) formData.append('poster', poster);
 
-      await createEvent(formData);
+      await updateEvent(id, formData);
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to create event');
+      setError(err.response?.data?.message || 'Failed to update event');
     } finally {
       setLoading(false);
     }
   };
 
+  if (initialLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-10 h-10 border-3 border-[var(--primary)] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen py-8">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8 animate-fadeIn">
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">
-            Create <span className="bg-gradient-to-r from-[var(--primary)] to-[var(--accent)] bg-clip-text text-transparent">Event</span>
-          </h1>
-          <p className="text-[var(--text-secondary)]">Fill in the details to create your event</p>
+        <div className="mb-8 animate-fadeIn flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl md:text-4xl font-bold mb-2">
+              Edit <span className="bg-gradient-to-r from-[var(--primary)] to-[var(--accent)] bg-clip-text text-transparent">Event</span>
+            </h1>
+            <p className="text-[var(--text-secondary)]">Update the details of your event</p>
+          </div>
+          <button onClick={() => navigate(-1)} className="btn-secondary">Cancel</button>
         </div>
 
         <div className="card p-6 md:p-8 animate-slideUp">
@@ -96,9 +146,12 @@ const CreateEvent = () => {
                 ) : (
                   <div className="text-center">
                     <div className="text-3xl mb-2">📷</div>
-                    <p className="text-sm text-[var(--text-muted)]">Click to upload poster (JPEG, PNG, WebP)</p>
+                    <p className="text-sm text-[var(--text-muted)]">Click to upload new poster (JPEG, PNG, WebP)</p>
                   </div>
                 )}
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                   <p className="text-white font-medium">Click to change poster</p>
+                </div>
                 <input
                   id="poster-input"
                   type="file"
@@ -149,7 +202,15 @@ const CreateEvent = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5">Date</label>
-                <input type="date" name="date" value={form.date} onChange={handleChange} className="input-field cursor-pointer" min={new Date().toISOString().split('T')[0]} required />
+                <input 
+                  type="date" 
+                  name="date" 
+                  value={form.date} 
+                  onChange={handleChange} 
+                  className="input-field cursor-pointer" 
+                  min={new Date().toISOString().split('T')[0]} 
+                  required 
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5">Time</label>
@@ -181,7 +242,7 @@ const CreateEvent = () => {
               {loading ? (
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
               ) : (
-                <>🎉 Create Event</>
+                <>💾 Update Event</>
               )}
             </button>
           </form>
@@ -191,4 +252,4 @@ const CreateEvent = () => {
   );
 };
 
-export default CreateEvent;
+export default EditEvent;

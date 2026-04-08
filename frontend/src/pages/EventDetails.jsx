@@ -79,6 +79,7 @@ const EventDetails = () => {
     new Date(d).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
   const isCollegeOnly = event.eventType === 'collegeOnlyEvent';
+  const isExpired = new Date(event.date) < new Date(new Date().setHours(0,0,0,0));
 
   return (
     <div className="min-h-screen py-8">
@@ -95,7 +96,12 @@ const EventDetails = () => {
             )}
             <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(10,10,15,0.9) 0%, transparent 60%)' }} />
             <div className="absolute bottom-6 left-6 right-6">
-              <div className="flex items-center gap-3 mb-3">
+              <div className="flex items-center gap-3 mb-3 flex-wrap">
+                {isExpired && (
+                  <span className="badge" style={{ background: 'rgba(239,68,68,0.9)', color: '#fff', border: 'none' }}>
+                    ⏳ Event Expired
+                  </span>
+                )}
                 <span className={`badge ${isCollegeOnly ? 'badge-college' : 'badge-open'}`}>
                   {isCollegeOnly ? `🎓 ${event.allowedCollege}` : '🌐 Open for All'}
                 </span>
@@ -224,6 +230,7 @@ const EventDetails = () => {
                   onClick={handleBook}
                   disabled={
                     booking ||
+                    isExpired ||
                     event.availableSeats <= 0 ||
                     (user && !isEligible()) ||
                     (user && user.role !== 'attendee')
@@ -232,6 +239,8 @@ const EventDetails = () => {
                 >
                   {booking ? (
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : isExpired ? (
+                    '⏳ Event Expired'
                   ) : event.availableSeats <= 0 ? (
                     'Sold Out'
                   ) : !user ? (

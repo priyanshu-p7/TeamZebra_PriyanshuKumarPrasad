@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { getEvents, getEventAnalytics, deleteEvent } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -17,6 +17,7 @@ ChartJS.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Le
 
 const OrganizerDashboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [events, setEvents] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [analytics, setAnalytics] = useState(null);
@@ -161,7 +162,7 @@ const OrganizerDashboard = () => {
                     key={event._id}
                     className={`card p-4 cursor-pointer transition-all ${
                       selectedEvent === event._id ? '!border-[var(--primary)]' : ''
-                    }`}
+                    } ${new Date(event.date) < new Date(new Date().setHours(0,0,0,0)) ? 'opacity-60 grayscale-[0.3]' : ''}`}
                     onClick={() => loadAnalytics(event._id)}
                   >
                     <div className="flex items-start justify-between">
@@ -170,6 +171,11 @@ const OrganizerDashboard = () => {
                         <p className="text-xs text-[var(--text-muted)] mt-1">📅 {formatDate(event.date)}</p>
                         <p className="text-xs text-[var(--text-muted)]">📍 {event.location}</p>
                         <div className="flex gap-2 mt-2">
+                          {new Date(event.date) < new Date(new Date().setHours(0,0,0,0)) && (
+                            <span className="text-xs px-2 py-0.5 rounded badge-expired" style={{ background: 'rgba(107,114,128,0.2)', color: 'var(--text-muted)' }}>
+                              Expired
+                            </span>
+                          )}
                           <span className="text-xs px-2 py-0.5 rounded" style={{ background: 'rgba(99,102,241,0.15)', color: 'var(--primary-light)' }}>
                             {event.totalSeats - event.availableSeats} sold
                           </span>
@@ -178,16 +184,28 @@ const OrganizerDashboard = () => {
                           </span>
                         </div>
                       </div>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(event._id);
-                        }}
-                        className="text-[var(--text-muted)] hover:text-[var(--error)] text-xs bg-transparent border-none cursor-pointer p-1"
-                        title="Delete event"
-                      >
-                        🗑️
-                      </button>
+                      <div className="flex flex-col gap-1">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/edit-event/${event._id}`);
+                          }}
+                          className="text-[var(--text-muted)] hover:text-[var(--primary)] text-xs bg-transparent border-none cursor-pointer p-1"
+                          title="Edit event"
+                        >
+                          ✏️
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(event._id);
+                          }}
+                          className="text-[var(--text-muted)] hover:text-[var(--error)] text-xs bg-transparent border-none cursor-pointer p-1"
+                          title="Delete event"
+                        >
+                          🗑️
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}

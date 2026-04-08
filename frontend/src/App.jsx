@@ -9,6 +9,7 @@ import ExploreEvents from './pages/ExploreEvents';
 import EventDetails from './pages/EventDetails';
 import MyTickets from './pages/MyTickets';
 import CreateEvent from './pages/CreateEvent';
+import EditEvent from './pages/EditEvent';
 import OrganizerDashboard from './pages/OrganizerDashboard';
 import ScanTicket from './pages/ScanTicket';
 import ForgotPassword from './pages/ForgotPassword';
@@ -51,6 +52,14 @@ function App() {
             element={
               <PrivateRoute roles={['organizer']}>
                 <CreateEvent />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/edit-event/:id"
+            element={
+              <PrivateRoute roles={['organizer']}>
+                <EditEvent />
               </PrivateRoute>
             }
           />

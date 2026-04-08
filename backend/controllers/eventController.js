@@ -46,6 +46,15 @@ const createEvent = async (req, res) => {
       allowedCollege = organizer.college;
     }
 
+    // Validate that event date is not in the past
+    const eventDate = new Date(date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Start of today
+
+    if (eventDate < today) {
+      return res.status(400).json({ message: 'Event date cannot be in the past' });
+    }
+
     let posterUrl = null;
     if (req.file) {
       const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1e9)}${path.extname(req.file.originalname)}`;
@@ -152,6 +161,16 @@ const updateEvent = async (req, res) => {
     }
 
     const updateData = { ...req.body };
+
+    // Validate date if it is being updated
+    if (updateData.date) {
+      const eventDate = new Date(updateData.date);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (eventDate < today) {
+        return res.status(400).json({ message: 'Event date cannot be in the past' });
+      }
+    }
     if (req.file) {
       const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1e9)}${path.extname(req.file.originalname)}`;
       const response = await imagekit.upload({
