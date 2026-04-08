@@ -46,11 +46,11 @@ const Home = () => {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-5">
-            <Link to="/explore" className="btn-primary !py-4 !px-8 text-lg animate-pulse-glow no-underline group">
+            <Link to="/explore" className="btn-primary py-4 px-8 text-lg animate-pulse-glow no-underline group">
               <Rocket size={22} className="group-hover:animate-float" /> Explore Events
               <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
             </Link>
-            <Link to="/register" className="btn-secondary !py-4 !px-8 text-lg no-underline">
+            <Link to="/register" className="btn-secondary py-4 px-8 text-lg no-underline">
               Get Started <Zap size={20} />
             </Link>
           </div>
@@ -168,10 +168,10 @@ const Home = () => {
               Whether you're an attendee looking for exciting events or an organizer creating unforgettable experiences — Eventra is your perfect platform.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-              <Link to="/register" className="btn-primary flex items-center gap-2 !py-4 !px-8 text-lg no-underline">
+              <Link to="/register" className="btn-primary flex items-center gap-2 py-4 px-8 text-lg no-underline">
                 <UserPlus size={22} /> Attendee Sign Up
               </Link>
-              <Link to="/register" className="btn-secondary flex items-center gap-2 !py-4 !px-8 text-lg no-underline">
+              <Link to="/register" className="btn-secondary flex items-center gap-2 py-4 px-8 text-lg no-underline">
                 <CalendarPlus size={22} /> Organizer Sign Up
               </Link>
             </div>
