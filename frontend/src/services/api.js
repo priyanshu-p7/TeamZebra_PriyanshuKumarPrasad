@@ -6,7 +6,7 @@ const API = axios.create({
 
 // Attach JWT token to every request
 API.interceptors.request.use((config) => {
-  const token = localStorage.getItem('eventra_token');
+  const token = localStorage.getItem('eventify_token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }

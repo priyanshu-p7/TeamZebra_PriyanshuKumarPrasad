@@ -8,7 +8,7 @@ export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('eventra_token'));
+  const [token, setToken] = useState(localStorage.getItem('eventify_token'));
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -35,7 +35,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credentials) => {
     const { data } = await loginUser(credentials);
-    localStorage.setItem('eventra_token', data.token);
+    localStorage.setItem('eventify_token', data.token);
     setToken(data.token);
     setUser(data.user);
     return data;
@@ -43,14 +43,14 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     const { data } = await registerUser(userData);
-    localStorage.setItem('eventra_token', data.token);
+    localStorage.setItem('eventify_token', data.token);
     setToken(data.token);
     setUser(data.user);
     return data;
   };
 
   const logout = () => {
-    localStorage.removeItem('eventra_token');
+    localStorage.removeItem('eventify_token');
     setToken(null);
     setUser(null);
   };

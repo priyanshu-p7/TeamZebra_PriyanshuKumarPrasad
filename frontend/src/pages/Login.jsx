@@ -46,7 +46,7 @@ const Login = () => {
              </div>
           </div>
           <h1 className="text-3xl font-bold mb-2">Welcome back</h1>
-          <p className="text-[var(--text-secondary)]">Sign in to your Eventra account</p>
+          <p className="text-[var(--text-secondary)]">Sign in to your Eventify account</p>
         </div>
 
         <div className="card p-8">

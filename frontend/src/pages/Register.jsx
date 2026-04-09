@@ -62,7 +62,7 @@ const Register = () => {
             </div>
           </div>
           <h1 className="text-3xl font-bold mb-2">Create your account</h1>
-          <p className="text-[var(--text-secondary)]">Join Eventra and start exploring events</p>
+          <p className="text-[var(--text-secondary)]">Join Eventify and start exploring events</p>
         </div>
 
         <div className="card p-8">

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getEvents, deleteEvent } from '../services/api';
+import { getEvents, deleteEvent, getEventAnalytics } from '../services/api';
 import EventCard from '../components/EventCard';
 import { useAuth } from '../context/AuthContext';
 import { PlusCircle, LayoutDashboard, Calendar, Users, Ticket, CheckSquare, Pencil, Trash2 } from 'lucide-react';
@@ -24,18 +24,43 @@ const OrganizerDashboard = () => {
     try {
       const { data } = await getEvents();
       // Filter events to only show those owned by the current organizer
-      const myEvents = data.filter(e => e.organizerId?._id === user?._id || e.organizerId === user?._id);
+      const myEvents = data.filter(e => 
+        e.organizerId?._id === user?._id || 
+        e.organizerId === user?._id ||
+        e.organizerId?._id === user?.id || 
+        e.organizerId === user?.id
+      );
       setEvents(myEvents);
+
+      // Aggregate dashboard stats
+      let totalCheckedIn = 0;
+      
+      // Fetch analytics for each event to get check-in counts
+      if (myEvents.length > 0) {
+        try {
+          const analyticsPromises = myEvents.map(e => getEventAnalytics(e._id));
+          const analyticsResults = await Promise.all(analyticsPromises);
+          
+          analyticsResults.forEach(res => {
+            const checkedInCount = res.data.attendees.filter(a => a.status === 'checked-in').length;
+            totalCheckedIn += checkedInCount;
+          });
+        } catch (err) {
+          console.error("Error fetching event analytics counts", err);
+        }
+      }
 
       const stats = myEvents.reduce(
         (acc, event) => {
           acc.totalEvents += 1;
           acc.totalSeats += event.totalSeats;
-          acc.bookedSeats += event.bookedSeats;
+          acc.bookedSeats += (event.totalSeats - event.availableSeats);
           return acc;
         },
         { totalEvents: 0, totalSeats: 0, bookedSeats: 0, checkedIn: 0 }
       );
+      
+      stats.checkedIn = totalCheckedIn;
       setAnalytics(stats);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
@@ -96,7 +121,7 @@ const OrganizerDashboard = () => {
             { label: 'Total Events', value: analytics.totalEvents, icon: <Calendar className="text-blue-500" size={24} />, bg: 'bg-blue-50' },
             { label: 'Total Capacity', value: analytics.totalSeats, icon: <Users className="text-indigo-500" size={24} />, bg: 'bg-indigo-50' },
             { label: 'Tickets Booked', value: analytics.bookedSeats, icon: <Ticket className="text-emerald-500" size={24} />, bg: 'bg-emerald-50' },
-            { label: 'Checked In', value: '0', icon: <CheckSquare className="text-amber-500" size={24} />, bg: 'bg-amber-50' },
+            { label: 'Checked In', value: analytics.checkedIn, icon: <CheckSquare className="text-amber-500" size={24} />, bg: 'bg-amber-50' },
           ].map((stat, i) => (
             <div key={i} className="card p-6 flex flex-col justify-between bg-white shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between mb-4">
@@ -171,7 +196,7 @@ const OrganizerDashboard = () => {
                       <div className="text-center w-1/2 border-r border-[var(--border)]">
                         <p className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider mb-1">Booked</p>
                         <p className="font-bold text-lg text-[var(--primary)]">
-                          {event.bookedSeats} <span className="text-sm font-medium text-[var(--text-secondary)]">/ {event.totalSeats}</span>
+                          {(event.totalSeats - event.availableSeats)} <span className="text-sm font-medium text-[var(--text-secondary)]">/ {event.totalSeats}</span>
                         </p>
                       </div>
                       <div className="text-center w-1/2">

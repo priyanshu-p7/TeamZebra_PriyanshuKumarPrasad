@@ -62,7 +62,7 @@ const ExploreEvents = () => {
         </div>
 
         {/* Filters */}
-        <form onSubmit={handleFilter} className="card p-6 md:p-8 mb-10 animate-fadeIn bg-white shadow-sm hover:shadow-md transition-shadow">
+        <form onSubmit={handleFilter} className="card p-6 md:p-8 mb-10 animate-fadeIn bg-white shadow-sm hover:shadow-md transition-shadow !overflow-visible relative z-[100]">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-5">
             <div className="relative">
               <Search className="absolute left-3.5 top-3.5 text-[var(--text-muted)]" size={18} />
@@ -140,7 +140,7 @@ const ExploreEvents = () => {
             <p className="text-lg text-[var(--text-secondary)]">Try adjusting your filters or check back later</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 md:gap-10">
             {events.map((event) => (
               <div key={event._id} className="animate-fadeIn h-full">
                 <EventCard event={event} />

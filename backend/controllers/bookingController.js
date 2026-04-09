@@ -90,7 +90,7 @@ const bookTicket = async (req, res) => {
       eventDescription: event.description,
       mapLink: mapLink,
       ticketCount,
-      qrCodeCid: 'cid:qrcode@eventra',
+      qrCodeCid: 'cid:qrcode@eventify',
       posterUrl: getPosterUrl(event.poster),
       userName: user.name,
     });
@@ -102,7 +102,7 @@ const bookTicket = async (req, res) => {
       attachments: [{
         filename: 'qrcode.png',
         path: qrCodeImage,
-        cid: 'qrcode@eventra'
+        cid: 'qrcode@eventify'
       }]
     });
 

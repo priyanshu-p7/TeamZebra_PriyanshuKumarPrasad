@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { getEventById, bookTicket, getMyBookings } from '../services/api';
+import { getEventById, bookTicket, getMyBookings, getEventAnalytics } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import LocationPicker from '../components/LocationPicker';
-import { Frown, PartyPopper, Clock4, GraduationCap, Globe, Calendar, Clock, MapPin, User, Ticket, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Frown, PartyPopper, Clock4, GraduationCap, Globe, Calendar, Clock, MapPin, User, Ticket, AlertTriangle, CheckCircle, Users, ExternalLink } from 'lucide-react';
 
 const EventDetails = () => {
   const { id } = useParams();
@@ -14,6 +14,7 @@ const EventDetails = () => {
   const [hasBooked, setHasBooked] = useState(false);
   const [booking, setBooking] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
+  const [attendees, setAttendees] = useState([]);
 
   useEffect(() => {
     fetchEvent();
@@ -27,12 +28,26 @@ const EventDetails = () => {
     try {
       const { data } = await getEventById(id);
       setEvent(data);
+      
+      // If user is organizer of this event, fetch analytics peek
+      if (user && user.role === 'organizer' && (data.organizerId?._id === user._id || data.organizerId?._id === user.id || data.organizerId === user._id || data.organizerId === user.id)) {
+        fetchOrganizerAnalytics();
+      }
     } catch (error) {
       console.error('Error fetching event:', error);
     } finally {
       if (!user || user.role !== 'attendee') {
         setLoading(false);
       }
+    }
+  };
+
+  const fetchOrganizerAnalytics = async () => {
+    try {
+      const { data } = await getEventAnalytics(id);
+      setAttendees(data.attendees || []);
+    } catch (err) {
+      console.error('Error fetching analytics:', err);
     }
   };
 
@@ -106,6 +121,7 @@ const EventDetails = () => {
 
   const isCollegeOnly = event.eventType === 'collegeOnlyEvent';
   const isExpired = new Date(event.date) < new Date(new Date().setHours(0,0,0,0));
+  const isOrganizer = user?.role === 'organizer' && (event.organizerId?._id === user?.id || event.organizerId?._id === user?._id || event.organizerId === user?.id || event.organizerId === user?._id);
 
   return (
     <div className="min-h-screen py-10">
@@ -217,8 +233,8 @@ const EventDetails = () => {
             </div>
 
             {/* Sidebar - Booking */}
-            <div>
-              <div className="card p-8 sticky top-28 bg-white shadow-sm border border-[var(--border)]">
+            <div className="sticky top-28 self-start space-y-6">
+              <div className="card p-8 bg-white shadow-sm border border-[var(--border)]">
                 
                 {/* Seats */}
                 <div className="text-center mb-8">
@@ -304,6 +320,45 @@ const EventDetails = () => {
                   </button>
                 )}
               </div>
+
+              {/* Organizer Attendees Preview */}
+              {isOrganizer && (
+                <div className="card p-6 bg-white shadow-sm border border-[var(--border)]">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-bold text-lg flex items-center gap-2"><Users size={18} className="text-[var(--primary)]" /> Recent Bookings</h3>
+                    <span className="text-xs font-bold text-[var(--text-muted)] bg-slate-100 px-2 py-1 rounded-md">{attendees.length} Total</span>
+                  </div>
+                  
+                  {attendees.length === 0 ? (
+                     <div className="text-sm text-[var(--text-secondary)] text-center py-4 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                       No tickets booked yet.
+                     </div>
+                  ) : (
+                    <div className="space-y-3 mb-4">
+                      {attendees.slice(0, 3).map((attendee, idx) => (
+                        <div key={idx} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
+                           <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-[var(--primary)] shrink-0 flex items-center justify-center text-white text-xs font-bold">
+                                {(attendee.userName || '').charAt(0).toUpperCase()}
+                              </div>
+                              <div className="flex flex-col">
+                                <span className="text-sm font-bold text-slate-800 leading-tight">{attendee.userName}</span>
+                                <span className="text-xs text-slate-500 truncate max-w-[120px]">{attendee.userEmail}</span>
+                              </div>
+                           </div>
+                           <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded-md ${attendee.status === 'checked-in' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'}`}>
+                             {attendee.status === 'checked-in' ? 'Checked' : 'Booked'}
+                           </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <Link to={`/analytics/${event._id}`} className="btn-secondary w-full flex items-center justify-center gap-2 !py-2.5 text-sm !bg-slate-50 hover:!bg-slate-100 !border-slate-200 !text-slate-700 no-underline">
+                    View Full Attendee List <ExternalLink size={14} />
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </div>

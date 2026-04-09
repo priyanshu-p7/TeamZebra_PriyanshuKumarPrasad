@@ -36,6 +36,7 @@ const createEvent = async (req, res) => {
       time,
       eventType,
       totalSeats,
+      posterUrl,
     } = req.body;
 
     // Get organizer info for college
@@ -55,15 +56,15 @@ const createEvent = async (req, res) => {
       return res.status(400).json({ message: 'Event date cannot be in the past' });
     }
 
-    let posterUrl = null;
+    let finalPoster = posterUrl || null;
     if (req.file) {
       const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1e9)}${path.extname(req.file.originalname)}`;
       const response = await imagekit.upload({
         file: req.file.buffer,
         fileName: uniqueName,
-        folder: '/eventra_posters'
+        folder: '/eventify_posters'
       });
-      posterUrl = response.url;
+      finalPoster = response.url;
     }
 
     const event = await Event.create({
@@ -80,7 +81,7 @@ const createEvent = async (req, res) => {
       allowedCollege,
       totalSeats,
       availableSeats: totalSeats,
-      poster: posterUrl,
+      poster: finalPoster,
     });
 
     res.status(201).json(event);
@@ -176,9 +177,11 @@ const updateEvent = async (req, res) => {
       const response = await imagekit.upload({
         file: req.file.buffer,
         fileName: uniqueName,
-        folder: '/eventra_posters'
+        folder: '/eventify_posters'
       });
       updateData.poster = response.url;
+    } else if (req.body.posterUrl) {
+      updateData.poster = req.body.posterUrl;
     }
 
     // Handle college logic on eventType change

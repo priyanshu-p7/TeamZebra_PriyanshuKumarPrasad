@@ -1,7 +1,7 @@
 {
-  "name": "eventra-backend",
+  "name": "eventify-backend",
   "version": "1.0.0",
-  "description": "Eventra - Hyper-local event discovery and ticket booking platform",
+  "description": "Eventify - Hyper-local event discovery and ticket booking platform",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

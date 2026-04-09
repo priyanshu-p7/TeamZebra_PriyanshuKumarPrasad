@@ -26,7 +26,7 @@ const Navbar = () => {
               <Ticket size={22} className="transform -rotate-12" />
             </div>
             <span className="text-xl font-black tracking-tight text-[var(--text-primary)]">
-              Eventra
+              Eventify
             </span>
           </Link>
 

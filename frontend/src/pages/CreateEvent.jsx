@@ -1,16 +1,20 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createEvent } from '../services/api';
 import LocationPicker from '../components/LocationPicker';
 import CustomSelect from '../components/CustomSelect';
+import CustomDatePicker from '../components/CustomDatePicker';
+import CustomTimePicker from '../components/CustomTimePicker';
 import { useAuth } from '../context/AuthContext';
-import { Image as ImageIcon, MapPin, Globe, GraduationCap, PartyPopper } from 'lucide-react';
+import { Image as ImageIcon, MapPin, Globe, GraduationCap, PartyPopper, UploadCloud, X } from 'lucide-react';
 
 const CreateEvent = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const fileInputRef = useRef(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const [form, setForm] = useState({
     title: '',
@@ -23,11 +27,49 @@ const CreateEvent = () => {
     latitude: 28.6139,
     longitude: 77.2090,
     totalSeats: '',
-    posterUrl: ''
+    posterFile: null,
+    posterPreview: ''
   });
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
   const handleLocationSelect = (lat, lng) => setForm({ ...form, latitude: lat, longitude: lng });
+
+  // Handle Drag & Drop Events
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFileChange({ target: { files: e.dataTransfer.files } });
+    }
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        setError("Image size must be less than 5MB");
+        return;
+      }
+      setForm({
+        ...form,
+        posterFile: file,
+        posterPreview: URL.createObjectURL(file) // Generate a temporary local URL for immediate preview
+      });
+    }
+  };
+
+  const removeImage = () => {
+    setForm({ ...form, posterFile: null, posterPreview: '' });
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
 
   // Get today's date formatted for the 'min' attribute
   const today = new Date().toISOString().split('T')[0];
@@ -37,10 +79,20 @@ const CreateEvent = () => {
     setLoading(true);
     setError(null);
     try {
-      const { data } = await createEvent({
-        ...form,
-        totalSeats: Number(form.totalSeats),
+      // Must use FormData since we are dispatching a native File object instead of a URL string
+      const formData = new FormData();
+      Object.keys(form).forEach(key => {
+        if (key === 'posterFile' && form.posterFile) {
+          formData.append('poster', form.posterFile); 
+        } else if (key === 'posterUrl' && form.posterUrl) {
+          formData.append('posterUrl', form.posterUrl);
+        } else if (key !== 'posterPreview' && key !== 'posterFile' && key !== 'posterUrl') {
+          formData.append(key, form[key]);
+        }
       });
+      formData.set('totalSeats', Number(form.totalSeats)); // parse Number
+
+      const { data } = await createEvent(formData);
       navigate(`/events/${data._id}`);
     } catch (err) {
       setError(err.response?.data?.message || 'Error creating event');
@@ -97,25 +149,19 @@ const CreateEvent = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wide">Date</label>
-                    <input
-                      type="date"
+                    <CustomDatePicker
                       name="date"
                       value={form.date}
                       onChange={handleChange}
-                      required
                       min={today} // Prevents past dates
-                      className="input-field cursor-pointer"
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wide">Time</label>
-                    <input
-                      type="time"
+                    <CustomTimePicker
                       name="time"
                       value={form.time}
                       onChange={handleChange}
-                      required
-                      className="input-field cursor-pointer"
                     />
                   </div>
                 </div>
@@ -136,28 +182,61 @@ const CreateEvent = () => {
               </div>
 
               {/* Right Column */}
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wide">Poster Image URL (Optional)</label>
-                  <input
-                    type="url"
-                    name="posterUrl"
-                    value={form.posterUrl}
-                    onChange={handleChange}
-                    className="input-field"
-                    placeholder="https://example.com/image.jpg"
-                  />
-                  {form.posterUrl && (
-                    <div className="mt-4 h-40 rounded-2xl overflow-hidden bg-[var(--bg-surface)] border border-[var(--border)]">
-                      <img src={form.posterUrl} alt="Preview" className="w-full h-full object-cover" onError={(e) => e.target.style.display = 'none'} />
-                    </div>
-                  )}
-                  {!form.posterUrl && (
-                    <div className="mt-4 h-40 rounded-2xl bg-[var(--bg-surface)] border border-dashed border-[var(--border)] flex flex-col items-center justify-center text-[var(--text-muted)]">
-                      <ImageIcon size={32} className="mb-2 opacity-50" />
-                      <span className="text-sm font-medium">Image Preview</span>
-                    </div>
-                  )}
+              <div className="space-y-6 flex flex-col h-full">
+                <div className="flex-grow flex flex-col" style={{ minHeight: "220px" }}>
+                  <label className="block text-sm font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wide justify-between flex">
+                    Poster Image (Optional)
+                    {form.posterPreview && (
+                      <button type="button" onClick={removeImage} className="text-[var(--error)] hover:underline flex items-center gap-1 text-xs">
+                        <X size={12} /> Remove
+                      </button>
+                    )}
+                  </label>
+                  
+                  <div 
+                    className={`relative flex-grow min-h-[180px] rounded-2xl overflow-hidden transition-all duration-200 border-2 border-dashed flex flex-col items-center justify-center cursor-pointer group ${isDragging ? 'border-blue-500 bg-blue-50' : 'border-[var(--border)] bg-[var(--bg-surface)] hover:bg-slate-50'}`}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      name="posterFile"
+                      onChange={handleFileChange}
+                      accept="image/*"
+                      className="hidden"
+                    />
+
+                    {form.posterPreview ? (
+                      <div className="absolute inset-0 w-full h-full p-2">
+                        <img src={form.posterPreview} alt="Preview" className="w-full h-full object-cover rounded-xl shadow-sm" />
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center justify-center p-6 text-center z-10 pointer-events-none">
+                        <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center mb-3 text-blue-500 transition-transform group-hover:scale-110">
+                           <UploadCloud size={32} />
+                        </div>
+                        <span className="font-bold text-[var(--text-primary)] text-sm">Click to upload or drag and drop</span>
+                        <span className="text-xs text-[var(--text-muted)] mt-1 font-medium">SVG, PNG, JPG or GIF (max. 5MB)</span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="mt-4 flex flex-col gap-2">
+                    <span className="text-xs text-center text-[var(--text-muted)] font-bold uppercase tracking-wider">Or Paste URL</span>
+                    <input
+                      type="url"
+                      name="posterUrl"
+                      value={form.posterUrl}
+                      onChange={(e) => {
+                         setForm({ ...form, posterUrl: e.target.value, posterPreview: e.target.value, posterFile: null });
+                      }}
+                      className="input-field !py-2 !text-sm"
+                      placeholder="https://example.com/image.jpg"
+                    />
+                  </div>
                 </div>
 
                 <div>

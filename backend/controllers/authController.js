@@ -170,7 +170,7 @@ const forgotPassword = async (req, res) => {
           <h1 style="color: white; margin: 0; font-size: 24px;">🔐 Password Reset</h1>
         </div>
         <div style="padding: 30px; color: #f0f0f5;">
-          <p style="font-size: 16px; margin-bottom: 20px;">You requested a password reset for your Eventra account.</p>
+          <p style="font-size: 16px; margin-bottom: 20px;">You requested a password reset for your Eventify account.</p>
           <div style="background: #111118; border: 1px solid #1e1e2e; border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 20px;">
             <p style="color: #9ca3b0; font-size: 12px; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 10px 0;">Your Reset Code</p>
             <p style="font-size: 36px; font-weight: 800; color: #818cf8; letter-spacing: 8px; margin: 0;">${resetCode}</p>
@@ -183,7 +183,7 @@ const forgotPassword = async (req, res) => {
 
     await sendEmail({
       to: user.email,
-      subject: '🔐 Eventra — Password Reset Code',
+      subject: '🔐 Eventify — Password Reset Code',
       html: emailHtml,
     });
 
