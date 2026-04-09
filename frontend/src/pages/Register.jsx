@@ -51,7 +51,7 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12">
+    <div className="flex-1 flex items-center justify-center px-4 py-12">
       <div className="absolute top-1/3 right-1/4 w-80 h-80 rounded-full opacity-10 blur-3xl" style={{ background: 'var(--accent)' }} />
 
       <div className="w-full max-w-md animate-slideUp">

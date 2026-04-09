@@ -86,6 +86,7 @@ const bookTicket = async (req, res) => {
     const emailHtml = buildTicketEmail({
       eventTitle: event.title,
       eventDate: event.date,
+      eventTime: event.time,
       eventLocation: event.location,
       eventDescription: event.description,
       mapLink: mapLink,
@@ -93,6 +94,7 @@ const bookTicket = async (req, res) => {
       qrCodeCid: 'cid:qrcode@eventify',
       posterUrl: getPosterUrl(event.poster),
       userName: user.name,
+      bookingId: booking._id,
     });
 
     sendEmail({

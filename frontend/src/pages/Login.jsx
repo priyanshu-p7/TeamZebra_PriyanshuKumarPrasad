@@ -34,7 +34,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12">
+    <div className="flex-1 flex items-center justify-center px-4 py-12">
       {/* Background effects */}
       <div className="absolute top-1/4 left-1/4 w-80 h-80 rounded-full opacity-10 blur-3xl" style={{ background: 'var(--primary)' }} />
 

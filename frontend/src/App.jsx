@@ -22,7 +22,7 @@ function App() {
       <BrowserRouter>
         <div className="font-sans text-slate-900 bg-slate-50 flex flex-col min-h-screen">
           <Navbar />
-          <main className="flex-grow flex flex-col">
+          <main className="flex-grow flex flex-col pt-24 md:pt-[120px]">
             <Routes>
               {/* Public routes */}
               <Route path="/" element={<Home />} />
