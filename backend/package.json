@@ -1,5 +1,5 @@
 {
-  "name": "eventify-backend",
+  "name": "ventify-backend",
   "version": "1.0.0",
   "description": "Eventify - Hyper-local event discovery and ticket booking platform",
   "main": "server.js",
