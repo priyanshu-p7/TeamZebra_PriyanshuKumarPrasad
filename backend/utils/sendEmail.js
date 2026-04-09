@@ -3,11 +3,16 @@ const nodemailer = require('nodemailer');
 const sendEmail = async ({ to, subject, html, attachments }) => {
   try {
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true, // use SSL
       auth: {
         user: process.env.EMAIL,
         pass: process.env.EMAIL_PASSWORD,
       },
+      tls: {
+        rejectUnauthorized: false
+      }
     });
 
     const mailOptions = {
@@ -19,11 +24,12 @@ const sendEmail = async ({ to, subject, html, attachments }) => {
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log('Email sent:', info.messageId);
+    console.log('✅ Email sent:', info.messageId);
     return info;
   } catch (error) {
-    console.error('Email error:', error.message);
+    console.error('❌ Email error:', error.message);
     // Don't throw - email failure shouldn't break booking
+    return null;
   }
 };
 

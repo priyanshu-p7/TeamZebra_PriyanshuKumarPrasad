@@ -72,7 +72,8 @@ const bookTicket = async (req, res) => {
     const getPosterUrl = (poster) => {
       if (!poster) return null;
       if (poster.startsWith('http')) return poster;
-      return `${process.env.CLIENT_URL}${poster}`;
+      const baseUrl = process.env.FRONTEND_URL || process.env.CLIENT_URL || '';
+      return `${baseUrl}${poster}`;
     };
 
     let mapLink = '';
@@ -97,7 +98,7 @@ const bookTicket = async (req, res) => {
       bookingId: booking._id,
     });
 
-    sendEmail({
+    await sendEmail({
       to: user.email,
       subject: `${event.title} Ticket Confirmation`,
       html: emailHtml,
