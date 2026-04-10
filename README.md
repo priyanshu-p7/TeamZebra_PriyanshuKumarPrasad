@@ -11,26 +11,11 @@
 
 Eventify is a **premium, full-stack event ecosystem** designed to bridge the gap between event organizers and attendees with cutting-edge UI/UX and robust ticketing logic.
 
-[**Explore Features**](#✨-core-features) • [**Tech Stack**](#🛠-built-with) • [**Architecture**](#📁-project-architecture)
 
 </div>
 
 ---
 
-## 📸 Visual Showcase
-
-<div align="center">
-  <img src="file:///Users/priyanshukumarprasad/.gemini/antigravity/brain/43385586-b5bc-4538-a70c-5f7ddc911e4b/media__1775698946138.png" width="800" alt="Admin Dashboard Surface"/>
-  <p><i>Modern Bento Grid Home Interface</i></p>
-</div>
-
-<div align="center">
-  <img src="file:///Users/priyanshukumarprasad/.gemini/antigravity/brain/43385586-b5bc-4538-a70c-5f7ddc911e4b/media__1775693072119.png" width="400" alt="Event Cards"/>
-  <img src="file:///Users/priyanshukumarprasad/.gemini/antigravity/brain/43385586-b5bc-4538-a70c-5f7ddc911e4b/media__1775691961934.png" width="380" alt="Create Event"/>
-  <p><i>Left: Dynamic Event Discover Grid • Right: Sleek Organizer Creation Suite</i></p>
-</div>
-
----
 
 ## ✨ Core Features
 
