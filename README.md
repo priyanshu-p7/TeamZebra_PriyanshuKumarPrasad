@@ -1,144 +1,104 @@
-# 🎫 Eventify — Hyper-local Event Discovery & Ticket Management
+<div align="center">
 
-Eventify is a premium, full-stack MERN application designed for seamless event discovery, instant ticket booking, and high-fidelity organizer management. Built with a focus on **modern aesthetics**, **real-time interactions**, and **secure ticket handling**.
+# 🎫 Eventify
+### *Redefining Hyper-local Event Discovery & Seamless Ticket Management*
 
-![Eventify Banner](https://img.shields.io/badge/Eventify-Modern--UI-4F47E5?style=for-the-badge)
-![MERN Stack](https://img.shields.io/badge/Stack-MERN-green?style=for-the-badge)
-![Tailwind CSS](https://img.shields.io/badge/Styling-Tailwind--CSS-38B2AC?style=for-the-badge)
+[![React](https://img.shields.io/badge/React-19-blue?logo=react&logoColor=white)](#)
+[![Vite](https://img.shields.io/badge/Vite-8.0-646CFF?logo=vite&logoColor=white)](#)
+[![Tailwind](https://img.shields.io/badge/Tailwind-4.2-38B2AC?logo=tailwind-css&logoColor=white)](#)
+[![Node](https://img.shields.io/badge/Node-20-339933?logo=node.js&logoColor=white)](#)
+[![MongoDB](https://img.shields.io/badge/MongoDB-7.0-47A248?logo=mongodb&logoColor=white)](#)
 
-## ✨ Key Features
+Eventify is a **premium, full-stack event ecosystem** designed to bridge the gap between event organizers and attendees with cutting-edge UI/UX and robust ticketing logic.
+
+[**Explore Features**](#✨-core-features) • [**Tech Stack**](#🛠-built-with) • [**Architecture**](#📁-project-architecture)
+
+</div>
+
+---
+
+## 📸 Visual Showcase
+
+<div align="center">
+  <img src="file:///Users/priyanshukumarprasad/.gemini/antigravity/brain/43385586-b5bc-4538-a70c-5f7ddc911e4b/media__1775698946138.png" width="800" alt="Admin Dashboard Surface"/>
+  <p><i>Modern Bento Grid Home Interface</i></p>
+</div>
+
+<div align="center">
+  <img src="file:///Users/priyanshukumarprasad/.gemini/antigravity/brain/43385586-b5bc-4538-a70c-5f7ddc911e4b/media__1775693072119.png" width="400" alt="Event Cards"/>
+  <img src="file:///Users/priyanshukumarprasad/.gemini/antigravity/brain/43385586-b5bc-4538-a70c-5f7ddc911e4b/media__1775691961934.png" width="380" alt="Create Event"/>
+  <p><i>Left: Dynamic Event Discover Grid • Right: Sleek Organizer Creation Suite</i></p>
+</div>
+
+---
+
+## ✨ Core Features
 
 ### 👤 For Attendees
-*   **Hyper-local Discovery**: Browse events with advanced filtering by city, category, and type.
-*   **Bento-style Landing Page**: A premium, animated landing page showcasing platform capabilities.
-*   **Instant Booking**: Secure seat reservation with a strict 1-ticket-per-user constraint.
-*   **Digital Boarding Pass**: Airline-style ticket pass with unique QR codes and "Download as Image" functionality.
-*   **Automated Confirmation**: Receive professionally styled HTML email tickets after every successful booking.
+*   **🔍 Precision Search**: Find events in your city via advanced categorical and time-based filtering.
+*   **🛋️ 1-Click Booking**: Seamless seat reservation with real-time availability locking.
+*   **🎟️ Digital Boarding Pass**: Airline-style ticket passes with unique QR codes and PDF/Image download support.
+*   **📧 Smart Notifications**: Automated, professionally styled email confirmations for every booking.
 
 ### 🏢 For Organizers
-*   **Manager Dashboard**: Comprehensive overview of personal events with real-time statistics.
-*   **Event Lifecycle Management**: Create, Edit, and Delete events with robust date validation (future-only).
-*   **Attendee Analytics**: View complete attendee lists and export-ready data for each event.
-*   **Gate Scan Tool**: Built-in QR scanner to verify attendee authenticity at the venue entrance.
-*   **Expired Logic**: Automatic dimming and locking of past events to prevent invalid bookings.
+*   **📊 Live Analytics**: Real-time conversion tracking and attendee check-in statistics.
+*   **✏️ Event Orchestration**: Full CRUD capabilities for events with future-date enforcement and smart-edit tools.
+*   **🛡️ Fraud Prevention**: Built-in QR Scan tool for high-speed gate verification.
+*   **⌛ Smart Expiry**: Background logic that automatically dims and disables past events.
 
 ---
 
-## 🛠 Tech Stack
+## 🛠 Built With
 
-### Frontend
-- **React 19**: Core UI framework for component-driven development.
-- **Vite**: Ultra-fast build tool and development server.
-- **Tailwind CSS**: Utility-first styling with custom glassmorphism effects.
-- **Lucide React**: Elegant, consistent iconography.
-- **React Leaflet**: Interactive maps for event location display.
-- **Chart.js**: Dynamic data visualization for organizer analytics.
-- **html2canvas**: DOM-to-image conversion for ticket downloading.
+### Frontend Architecture
+| Tech | Purpose |
+| :--- | :--- |
+| **React 19** | Modern UI development with Hooks & State Management |
+| **Vite** | Lightning-fast build pipeline and HMR |
+| **Tailwind CSS 4** | Advanced utility-first styling with Glassmorphism |
+| **Lucide React** | Consistent, lightweight iconography |
+| **Chart.js** | Interactive data visualization for organizers |
+| **Leaflet** | Geographical event mapping and navigation |
 
-### Backend
-- **Node.js & Express**: Scalable server-side logic and RESTful API.
-- **MongoDB & Mongoose**: NoSQL database for flexible event and user schema management.
-- **JWT (JSON Web Tokens)**: Secure, stateless authentication with role-based access control (RBAC).
-- **ImageKit**: Cloud-based image management for event posters.
-- **Nodemailer**: SMTP integration for transactional email delivery.
-- **express-validator**: Robust server-side input sanitization.
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-- Node.js (v18+)
-- MongoDB (Local or Atlas)
-- ImageKit Account (for posters)
-- Gmail App Password (for Nodemailer)
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/your-username/TeamZebra_PriyanshuKumarPrasad.git
-   cd TeamZebra_PriyanshuKumarPrasad
-   ```
-
-2. **Environment Configuration**
-   
-   Create a `.env` file in the `backend/` directory:
-   ```env
-   PORT=5000
-   MONGO_URI=your_mongodb_uri
-   JWT_SECRET=your_super_secret_key
-   CLIENT_URL=http://localhost:5173
-   
-   # ImageKit Config
-   IMAGEKIT_PUBLIC_KEY=your_public_key
-   IMAGEKIT_PRIVATE_KEY=your_private_key
-   IMAGEKIT_URL_ENDPOINT=https://ik.imagekit.io/your_id/
-   
-   # Email Config
-   EMAIL=your_gmail@gmail.com
-   EMAIL_PASSWORD=your_app_password
-   ```
-
-3. **Install Dependencies**
-   ```bash
-   # Install Backend dependencies
-   cd backend
-   npm install
-   
-   # Install Frontend dependencies
-   cd ../frontend
-   npm install
-   ```
-
-4. **Run the Application**
-   ```bash
-   # Start Backend (from backend/ directory)
-   npm run dev
-   
-   # Start Frontend (from frontend/ directory)
-   npm run dev
-   ```
+### Backend Infrastructure
+| Tech | Purpose |
+| :--- | :--- |
+| **Node.js** | Scalable execution environment |
+| **Express** | RESTful routing and middleware pipeline |
+| **MongoDB/Mongoose** | Flexible document-based data modeling |
+| **JWT** | Secure, stateless RBAC authentication |
+| **ImageKit** | High-performance cloud asset management |
+| **Nodemailer** | Industrial-grade SMTP transactional emails |
 
 ---
 
-## 📁 Project Structure
+## 📁 Project Architecture
 
-```text
-TeamZebra_PriyanshuKumarPrasad/
-├── backend/
-│   ├── config/         # Database and third-party configs
-│   ├── controllers/    # API request handling logic
-│   ├── models/         # Mongoose schemas
-│   ├── routes/         # Express dynamic routing
-│   ├── utils/          # Helpers (Email templates, QR gen)
-│   └── server.js       # Entry point
-├── frontend/
-│   ├── src/
-│   │   ├── components/ # Reusable UI components
-│   │   ├── context/    # Global Auth & State providers
-│   │   ├── pages/      # View components
-│   │   ├── assets/     # Images and SVGs
-│   │   └── App.jsx     # Main Routing
-│   └── tailwind.config.js
-└── README.md
+```mermaid
+graph TD
+    A[Client - React/Vite] -->|API Requests| B[Express Server]
+    B -->|Auth Middleware| C[JWT Verification]
+    B -->|Controllers| D[Logic Layer]
+    D -->|Schema Validation| E[Mongoose Models]
+    E -->|Persistence| F[(MongoDB Atlas)]
+    D -->|Asset Storage| G[ImageKit Cloud]
+    D -->|Delivery| H[Nodemailer SMTP]
 ```
 
 ---
 
-## 🎨 UI & UX Design
-- **Floating Navbar**: A responsive, glassmorphic navigation bar that adapts on scroll.
-- **Bento Grid**: Modern feature showcase with hover-triggered micro-interactions.
-- **Premium Buttons**: Custom gradients and smooth hover transitions using CSS variables.
-- **Accessibility**: Semantic HTML and descriptive alt tags throughout.
+## 🎨 Design Highlights
+> [!TIP]
+> **Glassmorphism everywhere**: Notice the frosted-glass effects on the floating navbar and input fields, creating a modern, airy feel.
 
-## 🤝 Contributing
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+*   **Floating Navbar**: Dynamically shrinks and tints on scroll for a premium feel.
+*   **Bento Layout**: Home page features are organized in a high-density, interactive grid.
+*   **Digital Stubs**: Tickets are designed to look like physical perforated festival passes.
 
 ---
 
-**Developed with ❤️ by Priyanshu Kumar Prasad**
+<div align="center">
+  Developed by <b>Priyanshu Kumar Prasad</b> 
+  <br/>
+  <i>Discover. Book. Experience.</i>
+</div>
